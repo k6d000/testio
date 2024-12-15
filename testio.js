@@ -460,6 +460,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	
 //Wallet import navigation buttons
+// Wallet import navigation buttons
 document.addEventListener("DOMContentLoaded", function () {
   // Utility function to set visibility
   function setVisibility(id, visibility) {
@@ -498,6 +499,8 @@ document.addEventListener("DOMContentLoaded", function () {
     setVisibility("import-wallet-tab", "none");
     setVisibility("import-prv-key-tab", "block");
   });
+});
+
 
 
 
@@ -548,6 +551,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   });
+
 
 
 //Store wallet address
