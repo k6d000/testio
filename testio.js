@@ -1802,6 +1802,7 @@ document.getElementById('connect-to-wallet-btn').disabled = true;
       setVisibility('generate-wallet-tab', 'none');
       setVisibility('import-prv-key-tab', 'none');
 	setVisibility('wallet-options-tab', 'block');
+	clearFields()
     });
   }
 
