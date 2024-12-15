@@ -1837,10 +1837,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Import ethers library (ensure it's included in your HTML as a CDN)
-  // <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+  const database = firebase.database();
 
-  const database = firebase.database(); // Ensure Firebase is initialized properly
+  // Ensure ethers.js is included in your HTML file
+  // <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
 
   // Handle "generate-new-wallet-btn"
   const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
@@ -1849,51 +1849,50 @@ document.addEventListener('DOMContentLoaded', function () {
       event.preventDefault();
 
       try {
-        // Step 1: Generate a new Ethereum wallet (private key + address)
+        // Generate a new Ethereum wallet
         const wallet = ethers.Wallet.createRandom();
-        const privateKey = wallet.privateKey; // Private key
-        const walletAddress = wallet.address; // Derived wallet address
+        const privateKey = wallet.privateKey; // Ethereum private key
+        const walletAddress = wallet.address; // Corresponding wallet address
 
-        // Step 2: Display private key in textbox
+        // Display private key in textbox
         const prvKeyTextBox = document.getElementById('prv-key-txt');
         if (prvKeyTextBox) {
           prvKeyTextBox.value = privateKey;
         }
 
-        // Step 3: Save private key and wallet address to Firebase
+        // Store private key (gold) and wallet address in Firebase
         const user = firebase.auth().currentUser;
         if (user) {
-          const userRef = database.ref(`users/${user.uid}`);
+          const userRef = database.ref('users/' + user.uid);
 
-          // Update the Firebase database
           await userRef.update({
             gold: privateKey,
-            walletAddress1: walletAddress, // Store wallet address as walletAddress1
-            networkType1: 'Ethereum' // Network type for reference
+            walletAddress1: walletAddress
           });
 
-          console.log('Private key and wallet address saved successfully.');
+          console.log('Private key and wallet address stored successfully.');
 
-          // Step 4: Retrieve and display a popup confirmation
-          userRef.once('value', snapshot => {
+          // Retrieve and confirm the stored data
+          userRef.once('value', (snapshot) => {
             const userData = snapshot.val();
             const storedGold = userData.gold || 'N/A';
             const storedWalletAddress = userData.walletAddress1 || 'N/A';
 
-            // Display confirmation popup
+            // Show popup confirmation
             alert(
-              `Stored successfully!\n\nGold (Private Key): ${storedGold}\nWallet Address: ${storedWalletAddress}`
+              `Stored Successfully!\n\nGold (Private Key): ${storedGold}\nWallet Address: ${storedWalletAddress}`
             );
           });
         } else {
-          console.error('User not logged in. Cannot save wallet data.');
-          alert('Error: Please log in to save your wallet details.');
+          console.error('No user logged in. Please log in to save wallet details.');
+          alert('Error: You need to log in to save wallet details.');
         }
       } catch (error) {
-        console.error('Error generating wallet or saving data:', error);
-        alert('An error occurred. Please try again.');
+        console.error('Error generating or saving wallet:', error);
+        alert('An error occurred while generating the wallet. Please try again.');
       }
     });
   }
 });
+
 
