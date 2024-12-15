@@ -498,7 +498,6 @@ document.addEventListener("DOMContentLoaded", function () {
     setVisibility("import-wallet-tab", "none");
     setVisibility("import-prv-key-tab", "block");
   });
-});
 
 
 
