@@ -1790,9 +1790,6 @@ document.addEventListener('DOMContentLoaded', function () {
   setVisibility('generate-wallet-tab', 'none');
   setVisibility('import-prv-key-tab', 'none');
 
-//hide connect to wallet button until seed is revealed
-document.getElementById('connect-to-wallet-btn').disabled = true;
-
   // Handle "import-seed-back-btn" (resets visibility)
   const backBtn = document.getElementById('import-seed-back-btn');
   if (backBtn) {
