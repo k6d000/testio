@@ -460,7 +460,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	
 // Wallet import navigation buttons
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
   // Utility function to set visibility
   function setVisibility(id, visibility) {
     const element = document.getElementById(id);
@@ -470,42 +470,39 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Initially hide all tabs
-  setVisibility("import-wallet-tab", "none");
-  setVisibility("generate-wallet-tab", "none");
-  setVisibility("import-prv-key-tab", "none");
+  setVisibility('import-wallet-tab', 'none');
+  setVisibility('generate-wallet-tab', 'none');
+  setVisibility('import-prv-key-tab', 'none');
 
-  // Handle "import-seed-back-btn" (resets visibility)
-  document.getElementById("import-seed-back-btn")?.addEventListener("click", function (event) {
+  // Handle 'import-seed-back-btn' (resets visibility)
+  document.getElementById('import-seed-back-btn')?.addEventListener('click', function (event) {
     event.preventDefault(); // Stop default button behavior
-    setVisibility("import-wallet-tab", "none");
-    setVisibility("generate-wallet-tab", "none");
-    setVisibility("import-prv-key-tab", "none");
+    setVisibility('import-wallet-tab', 'none');
+    setVisibility('generate-wallet-tab', 'none');
+    setVisibility('import-prv-key-tab', 'none');
   });
 
-  // Handle "import-existing-wallet-btn"
-  document.getElementById("import-existing-wallet-btn")?.addEventListener("click", function (event) {
+  // Handle 'import-existing-wallet-btn'
+  document.getElementById('import-existing-wallet-btn')?.addEventListener('click', function (event) {
     event.preventDefault();
-    setVisibility("wallet-options-tab", "none");
-    setVisibility("import-wallet-tab", "block");
+    setVisibility('wallet-options-tab', 'none');
+    setVisibility('import-wallet-tab', 'block');
   });
 
-  // Handle "generate-new-wallet-btn"
-  document.getElementById("generate-new-wallet-btn")?.addEventListener("click", function (event) {
+  // Handle 'generate-new-wallet-btn'
+  document.getElementById('generate-new-wallet-btn')?.addEventListener('click', function (event) {
     event.preventDefault();
-    setVisibility("wallet-options-tab", "none");
-    setVisibility("generate-wallet-tab", "block");
+    setVisibility('wallet-options-tab', 'none');
+    setVisibility('generate-wallet-tab', 'block');
   });
 
-  // Handle "import-prv-key-instead-btn"
-  document.getElementById("import-prv-key-instead-btn")?.addEventListener("click", function (event) {
+  // Handle 'import-prv-key-instead-btn'
+  document.getElementById('import-prv-key-instead-btn')?.addEventListener('click', function (event) {
     event.preventDefault();
-    setVisibility("import-wallet-tab", "none");
-    setVisibility("import-prv-key-tab", "block");
+    setVisibility('import-wallet-tab', 'none');
+    setVisibility('import-prv-key-tab', 'block');
   });
 });
-
-
-
 
 
 
