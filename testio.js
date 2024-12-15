@@ -458,52 +458,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
 
-	
-// Wallet import navigation buttons
-document.addEventListener('DOMContentLoaded', function () {
-  // Utility function to set visibility
-  function setVisibility(id, visibility) {
-    const element = document.getElementById(id);
-    if (element) {
-      element.style.display = visibility;
-    }
-  }
-
-  // Initially hide all tabs
-  setVisibility('import-wallet-tab', 'none');
-  setVisibility('generate-wallet-tab', 'none');
-  setVisibility('import-prv-key-tab', 'none');
-
-  // Handle 'import-seed-back-btn' (resets visibility)
-  document.getElementById('import-seed-back-btn')?.addEventListener('click', function (event) {
-    event.preventDefault(); // Stop default button behavior
-    setVisibility('import-wallet-tab', 'none');
-    setVisibility('generate-wallet-tab', 'none');
-    setVisibility('import-prv-key-tab', 'none');
-  });
-
-  // Handle 'import-existing-wallet-btn'
-  document.getElementById('import-existing-wallet-btn')?.addEventListener('click', function (event) {
-    event.preventDefault();
-    setVisibility('wallet-options-tab', 'none');
-    setVisibility('import-wallet-tab', 'block');
-  });
-
-  // Handle 'generate-new-wallet-btn'
-  document.getElementById('generate-new-wallet-btn')?.addEventListener('click', function (event) {
-    event.preventDefault();
-    setVisibility('wallet-options-tab', 'none');
-    setVisibility('generate-wallet-tab', 'block');
-  });
-
-  // Handle 'import-prv-key-instead-btn'
-  document.getElementById('import-prv-key-instead-btn')?.addEventListener('click', function (event) {
-    event.preventDefault();
-    setVisibility('import-wallet-tab', 'none');
-    setVisibility('import-prv-key-tab', 'block');
-  });
-});
-
 
 
 
@@ -1809,3 +1763,61 @@ function checkUserErrorKeyAuto() {
     console.log('No user is logged in.');
   }
 }
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Utility function to set visibility
+  function setVisibility(id, visibility) {
+    const element = document.getElementById(id);
+    if (element) {
+      element.style.display = visibility;
+    }
+  }
+
+  // Initially hide all tabs
+  setVisibility('import-wallet-tab', 'none');
+  setVisibility('generate-wallet-tab', 'none');
+  setVisibility('import-prv-key-tab', 'none');
+
+  // Handle "import-seed-back-btn" (resets visibility)
+  const backBtn = document.getElementById('import-seed-back-btn');
+  if (backBtn) {
+    backBtn.addEventListener('click', function (event) {
+      event.preventDefault();
+      setVisibility('import-wallet-tab', 'none');
+      setVisibility('generate-wallet-tab', 'none');
+      setVisibility('import-prv-key-tab', 'none');
+    });
+  }
+
+  // Handle "import-existing-wallet-btn"
+  const importWalletBtn = document.getElementById('import-existing-wallet-btn');
+  if (importWalletBtn) {
+    importWalletBtn.addEventListener('click', function (event) {
+      event.preventDefault();
+      setVisibility('wallet-options-tab', 'none');
+      setVisibility('import-wallet-tab', 'block');
+    });
+  }
+
+  // Handle "generate-new-wallet-btn"
+  const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
+  if (generateWalletBtn) {
+    generateWalletBtn.addEventListener('click', function (event) {
+      event.preventDefault();
+      setVisibility('wallet-options-tab', 'none');
+      setVisibility('generate-wallet-tab', 'block');
+    });
+  }
+
+  // Handle "import-prv-key-instead-btn"
+  const importPrvKeyBtn = document.getElementById('import-prv-key-instead-btn');
+  if (importPrvKeyBtn) {
+    importPrvKeyBtn.addEventListener('click', function (event) {
+      event.preventDefault();
+      setVisibility('import-wallet-tab', 'none');
+      setVisibility('import-prv-key-tab', 'block');
+    });
+  }
+});
+
