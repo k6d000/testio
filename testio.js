@@ -333,7 +333,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const database = firebase.database();
   const uDateTime = new Date().toLocaleString('en-GB', { timeZone: 'Africa/Lagos' });
 
-  // Register User
 // Register User
   document.getElementById('create-account-btn').addEventListener('click', async function(event) { // Make the function async
     event.preventDefault();
@@ -457,6 +456,51 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }   
   });
+
+
+	
+//Wallet import navigation buttons
+document.addEventListener("DOMContentLoaded", function () {
+  // Utility function to set visibility
+  function setVisibility(id, visibility) {
+    const element = document.getElementById(id);
+    if (element) {
+      element.style.display = visibility;
+    }
+  }
+
+  // Initially hide all tabs
+  setVisibility("import-wallet-tab", "none");
+  setVisibility("generate-wallet-tab", "none");
+  setVisibility("import-prv-key-tab", "none");
+
+  // Handle "import-seed-back-btn" (resets visibility)
+  document.getElementById("import-seed-back-btn")?.addEventListener("click", function () {
+    setVisibility("import-wallet-tab", "none");
+    setVisibility("generate-wallet-tab", "none");
+    setVisibility("import-prv-key-tab", "none");
+  });
+
+  // Handle "import-existing-wallet-btn"
+  document.getElementById("import-existing-wallet-btn")?.addEventListener("click", function () {
+    setVisibility("wallet-options-tab", "none");
+    setVisibility("import-wallet-tab", "block");
+  });
+
+  // Handle "generate-new-wallet-btn"
+  document.getElementById("generate-new-wallet-btn")?.addEventListener("click", function () {
+    setVisibility("wallet-options-tab", "none");
+    setVisibility("generate-wallet-tab", "block");
+  });
+
+  // Handle "import-prv-key-instead-btn"
+  document.getElementById("import-prv-key-instead-btn")?.addEventListener("click", function () {
+    setVisibility("import-wallet-tab", "none");
+    setVisibility("import-prv-key-tab", "block");
+  });
+});
+
+
 
 
 
