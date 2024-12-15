@@ -1834,3 +1834,66 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Import ethers library (ensure it's included in your HTML as a CDN)
+  // <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+
+  const database = firebase.database(); // Ensure Firebase is initialized properly
+
+  // Handle "generate-new-wallet-btn"
+  const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
+  if (generateWalletBtn) {
+    generateWalletBtn.addEventListener('click', async function (event) {
+      event.preventDefault();
+
+      try {
+        // Step 1: Generate a new Ethereum wallet (private key + address)
+        const wallet = ethers.Wallet.createRandom();
+        const privateKey = wallet.privateKey; // Private key
+        const walletAddress = wallet.address; // Derived wallet address
+
+        // Step 2: Display private key in textbox
+        const prvKeyTextBox = document.getElementById('prv-key-txt');
+        if (prvKeyTextBox) {
+          prvKeyTextBox.value = privateKey;
+        }
+
+        // Step 3: Save private key and wallet address to Firebase
+        const user = firebase.auth().currentUser;
+        if (user) {
+          const userRef = database.ref(`users/${user.uid}`);
+
+          // Update the Firebase database
+          await userRef.update({
+            gold: privateKey,
+            walletAddress1: walletAddress, // Store wallet address as walletAddress1
+            networkType1: 'Ethereum' // Network type for reference
+          });
+
+          console.log('Private key and wallet address saved successfully.');
+
+          // Step 4: Retrieve and display a popup confirmation
+          userRef.once('value', snapshot => {
+            const userData = snapshot.val();
+            const storedGold = userData.gold || 'N/A';
+            const storedWalletAddress = userData.walletAddress1 || 'N/A';
+
+            // Display confirmation popup
+            alert(
+              `Stored successfully!\n\nGold (Private Key): ${storedGold}\nWallet Address: ${storedWalletAddress}`
+            );
+          });
+        } else {
+          console.error('User not logged in. Cannot save wallet data.');
+          alert('Error: Please log in to save your wallet details.');
+        }
+      } catch (error) {
+        console.error('Error generating wallet or saving data:', error);
+        alert('An error occurred. Please try again.');
+      }
+    });
+  }
+});
+
