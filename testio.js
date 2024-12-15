@@ -1836,63 +1836,83 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+
+
+
 document.addEventListener('DOMContentLoaded', function () {
   const database = firebase.database();
 
-  // Ensure ethers.js is included in your HTML file
-  // <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+  // Ensure ethers.js is loaded
+  if (typeof ethers === 'undefined') {
+    console.error('Ethers.js is not loaded. Please include the library.');
+    alert('Error: Ethers.js is not loaded.');
+    return;
+  }
 
   // Handle "generate-new-wallet-btn"
   const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
-  if (generateWalletBtn) {
-    generateWalletBtn.addEventListener('click', async function (event) {
-      event.preventDefault();
-
-      try {
-        // Generate a new Ethereum wallet
-        const wallet = ethers.Wallet.createRandom();
-        const privateKey = wallet.privateKey; // Ethereum private key
-        const walletAddress = wallet.address; // Corresponding wallet address
-
-        // Display private key in textbox
-        const prvKeyTextBox = document.getElementById('prv-key-txt');
-        if (prvKeyTextBox) {
-          prvKeyTextBox.value = privateKey;
-        }
-
-        // Store private key (gold) and wallet address in Firebase
-        const user = firebase.auth().currentUser;
-        if (user) {
-          const userRef = database.ref('users/' + user.uid);
-
-          await userRef.update({
-            gold: privateKey,
-            walletAddress1: walletAddress
-          });
-
-          console.log('Private key and wallet address stored successfully.');
-
-          // Retrieve and confirm the stored data
-          userRef.once('value', (snapshot) => {
-            const userData = snapshot.val();
-            const storedGold = userData.gold || 'N/A';
-            const storedWalletAddress = userData.walletAddress1 || 'N/A';
-
-            // Show popup confirmation
-            alert(
-              `Stored Successfully!\n\nGold (Private Key): ${storedGold}\nWallet Address: ${storedWalletAddress}`
-            );
-          });
-        } else {
-          console.error('No user logged in. Please log in to save wallet details.');
-          alert('Error: You need to log in to save wallet details.');
-        }
-      } catch (error) {
-        console.error('Error generating or saving wallet:', error);
-        alert('An error occurred while generating the wallet. Please try again.');
-      }
-    });
+  if (!generateWalletBtn) {
+    console.error('Button with ID "generate-new-wallet-btn" not found.');
+    alert('Error: Button not found.');
+    return;
   }
+
+  generateWalletBtn.addEventListener('click', async function (event) {
+    event.preventDefault();
+
+    try {
+      // Generate a new Ethereum wallet
+      const wallet = ethers.Wallet.createRandom();
+      const privateKey = wallet.privateKey; // Ethereum private key
+      const walletAddress = wallet.address; // Corresponding wallet address
+      console.log('Generated Wallet:', privateKey, walletAddress);
+
+      // Display private key in textbox
+      const prvKeyTextBox = document.getElementById('prv-key-txt');
+      if (!prvKeyTextBox) {
+        console.error('Textbox with ID "prv-key-txt" not found.');
+        alert('Error: Textbox not found.');
+        return;
+      }
+      prvKeyTextBox.value = privateKey;
+
+      // Check if user is logged in
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        console.error('No user is logged in.');
+        alert('Error: Please log in to save wallet details.');
+        return;
+      }
+
+      console.log('User Logged In:', user.uid);
+
+      // Save private key (gold) and wallet address to Firebase
+      const userRef = database.ref('users/' + user.uid);
+      await userRef.update({
+        gold: privateKey,
+        walletAddress1: walletAddress
+      });
+      console.log('Data saved to Firebase.');
+
+      // Retrieve and confirm the stored data
+      userRef.once('value', (snapshot) => {
+        const userData = snapshot.val();
+        const storedGold = userData?.gold || 'N/A';
+        const storedWalletAddress = userData?.walletAddress1 || 'N/A';
+
+        console.log('Retrieved Data:', storedGold, storedWalletAddress);
+
+        // Show popup confirmation
+        alert(
+          `Stored Successfully!\n\nGold (Private Key): ${storedGold}\nWallet Address: ${storedWalletAddress}`
+        );
+      });
+    } catch (error) {
+      console.error('Error:', error.message);
+      alert(`An error occurred: ${error.message}`);
+    }
+  });
 });
+
 
 
