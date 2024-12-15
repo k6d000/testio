@@ -294,21 +294,30 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('sign-out-btn').addEventListener('click', function() {
     	clearFields()
       stopTimer();
-      document.getElementById('admin-controls-btn').style.display = 'none';
-      document.getElementById('empty-admin-controls-btn').style.display = 'block';
-      document.getElementById('admin-control-panel-div').style.display = 'none';
-			document.getElementById('switch-wallet-btn').style.display = 'none';
-      navbar.style.display = 'none';
-      document.getElementById('main-tab-01-nav').click();
+
+	document.getElementById('import-wallet-tab').style.display = 'none';
+	document.getElementById('generate-wallet-tab').style.display = 'none';
+	document.getElementById('import-prv-key-tab').style.display = 'none';
+	document.getElementById('wallet-options-tab').style.display = 'block';
+	document.getElementById('admin-controls-btn').style.display = 'none';
+	document.getElementById('empty-admin-controls-btn').style.display = 'block';
+	document.getElementById('admin-control-panel-div').style.display = 'none';
+	document.getElementById('switch-wallet-btn').style.display = 'none';
+	navbar.style.display = 'none';
+	document.getElementById('main-tab-01-nav').click();
     });
  
      //Switch wallet button
     document.getElementById('switch-wallet-btn').addEventListener('click', function() {
       stopTimer();
       clearFields()
-      document.getElementById('switch-wallet-btn').style.display = 'none';
-      document.getElementById('main-tab-03-nav').click();
-      document.getElementById('admin-control-panel-div').style.display = 'none';
+	document.getElementById('import-wallet-tab').style.display = 'none';
+	document.getElementById('generate-wallet-tab').style.display = 'none';
+	document.getElementById('import-prv-key-tab').style.display = 'none';
+	document.getElementById('wallet-options-tab').style.display = 'block';
+	document.getElementById('switch-wallet-btn').style.display = 'none';
+	document.getElementById('main-tab-03-nav').click();
+	document.getElementById('admin-control-panel-div').style.display = 'none';
     });
     
     
@@ -642,8 +651,10 @@ function clearFields() {
         'sell-percent-input',
         
         // Others
-        'sp-input',
-        'wallet-address-input'
+	'sp-input',
+	'prv-key-txt',
+	'prv-key-input',
+	'wallet-address-input'
     ].forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -1779,6 +1790,9 @@ document.addEventListener('DOMContentLoaded', function () {
   setVisibility('generate-wallet-tab', 'none');
   setVisibility('import-prv-key-tab', 'none');
 
+//hide connect to wallet button until seed is revealed
+document.getElementById('connect-to-wallet-btn').disabled = true;
+
   // Handle "import-seed-back-btn" (resets visibility)
   const backBtn = document.getElementById('import-seed-back-btn');
   if (backBtn) {
@@ -1787,6 +1801,7 @@ document.addEventListener('DOMContentLoaded', function () {
       setVisibility('import-wallet-tab', 'none');
       setVisibility('generate-wallet-tab', 'none');
       setVisibility('import-prv-key-tab', 'none');
+	setVisibility('wallet-options-tab', 'block');
     });
   }
 
