@@ -555,126 +555,117 @@ document.getElementById('connect-to-wallet-btn')?.addEventListener('click', func
 	
 
 
-// Reusable function to store wallet address
-function handleStoreWalletAddress(walletAddressInputId, networkTypeLabelId) {
-  const walletAddress = document.getElementById(walletAddressInputId)?.value;
-  const networkType = document.getElementById(networkTypeLabelId)?.textContent;
+//Store wallet address
+  document.getElementById('add-wallet-address-btn').addEventListener('click', function(event) {
+    event.preventDefault();
+    var walletAddress = document.getElementById('wallet-address-input').value;
+    var networkType = document.getElementById('wallet-address-label1').textContent;
 
-  if (!walletAddress || !networkType) return;
-
-  if (!validate_walletAddressLength(walletAddress)) {
-    displayError('Failed to add wallet address: Please ensure the wallet address is in the correct format');
-    return;
-  }
-
-  const user = auth?.currentUser; // Check if user is logged in
-  if (!user) {
-    displayError('User not logged in.');
-    return;
-  }
-
-  walletAES(user.uid, walletAddress); // Encrypt or process the wallet address before saving
-
-  const userRef = database.ref('users/' + user.uid);
-
-  userRef
-    .once('value')
-    .then((snapshot) => {
-      const userData = snapshot.val() || {};
-      const updateData = { last_login: uDateTime };
-
-      // Check for empty slots to store wallet address
-      if (!userData.walletAddress1) {
-        updateData.walletAddress1 = walletAddress;
-        updateData.networkType1 = networkType;
-      } else if (!userData.walletAddress2) {
-        updateData.walletAddress2 = walletAddress;
-        updateData.networkType2 = networkType;
-      } else if (!userData.walletAddress3) {
-        updateData.walletAddress3 = walletAddress;
-        updateData.networkType3 = networkType;
-      } else {
-        displayError('Maximum wallet addresses reached.');
-        return Promise.reject(new Error('Maximum wallet addresses reached.'));
+    if (!validate_walletAddressLength(walletAddress)) {
+      displayError('Failed to add wallet address: Please ensure the wallet address is in the correct format');
+      return;
+    }
+    else {
+      const user = auth.currentUser;
+      
+     	walletAES(user.uid, walletAddress);     
+      
+      if (!user) {
+        displayError('User not logged in.');
+        return;
       }
 
-      return userRef.update(updateData);
-    })
-    .then(() => {
-      console.log('Wallet address added or updated successfully.');
-      document.getElementById('main-tab-03-nav')?.click();
-      const currentUser = firebase.auth().currentUser;
-      if (currentUser) {
-        populateSelector(currentUser);
-      }
-      navbar.style.display = 'block';
-      errorMessageDiv.style.display = 'none';
-    })
-    .catch((error) => {
-      displayError('Failed to add wallet address: ' + error.message);
-    });
-}
+      const userRef = database.ref('users/' + user.uid);
+      userRef.once('value').then(snapshot => {
+        const userData = snapshot.val() || {};
+        const updateData = { last_login: uDateTime };
 
-// Event listener for 'add-wallet-address-btn'
-document.getElementById('add-wallet-address-btn')?.addEventListener('click', function (event) {
-  event.preventDefault();
-  handleStoreWalletAddress('wallet-address-input', 'wallet-address-label1');
-});
+        if (!userData.walletAddress1) {
+          updateData.walletAddress1 = walletAddress;
+          updateData.networkType1 = networkType;
+        } else if (!userData.walletAddress2) {
+          updateData.walletAddress2 = walletAddress;
+          updateData.networkType2 = networkType;
+        } else if (!userData.walletAddress3) {
+          updateData.walletAddress3 = walletAddress;
+          updateData.networkType3 = networkType;
+        } else {
+          displayError('Maximum wallet addresses reached.');
+          return Promise.reject(new Error('Maximum wallet addresses reached.'));
+        }
 
+        return userRef.update(updateData);
+      }).then(() => {
+        // If this point is reached, the update was successful
+        console.log('Wallet address added or updated successfully.');
+        document.getElementById('main-tab-03-nav').click();
+        const user0 = firebase.auth().currentUser;
+        if (user0) {
+          populateSelector(user0);
+        }
+      	console.log('No user is logged in.');
+        navbar.style.display = 'block';
+        errorMessageDiv.style.display = 'none';
+      }).catch(error => {
+        displayError('Failed to add wallet address: ' + error.message);
+      });    
+    }
+  });
 
-// Update username label function
-function updateUsernameLabel() {
-  const user = firebase.auth().currentUser;
-  if (user) {
-    const userRef = firebase.database().ref('users/' + user.uid);
-    userRef
-      .once('value')
-      .then((snapshot) => {
+//for auto trader earnings username
+  function updateUsernameLabel() {
+    const user = firebase.auth().currentUser;
+    if (user) {
+      const userRef = firebase.database().ref('users/' + user.uid);
+      userRef.once('value', (snapshot) => {
         const userData = snapshot.val();
-        if (userData?.name) {
+        if (userData && userData.name) {
           let username = userData.name;
+          // Check if the username does not start with '@'
           if (!username.startsWith('@')) {
-            username = '@' + username;
+            username = '@' + username; // Prepend '@' to the username
           }
           document.getElementById('win-username-txt').textContent = username;
         } else {
-          console.log('User data is missing.');
+          console.log("User data is missing.");
         }
-      })
-      .catch((error) => {
-        console.log('Error fetching user data:', error);
+      }).catch((error) => {
+        console.log("Error fetching user data:", error);
       });
-  } else {
-    console.log('No user is logged in.');
+    } else {
+      console.log("No user is logged in.");
+    }
   }
-}
+  
+//Field format check
+  function validate_email(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
 
-// Field validation functions
-function validate_email(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
+  function validate_password(password) {
+    return password.length >= 6;
+  }
 
-function validate_password(password) {
-  return password.length >= 6;
-}
+  function validate_walletAddressLength(address) {
+    return address.length >= 10;
+  }
 
-function validate_walletAddressLength(address) {
-  return address.length >= 10;
-}
 
-function validate_passwords_match(password, confirm_password) {
-  return password === confirm_password;
-}
+  function validate_passwords_match(password, confirm_password) {
+    return password === confirm_password;
+  }
 
-function validate_input(input) {
-  return input != null && input.trim().length > 0;
-}
-
-function checkWordCount(input) {
+  function validate_input(input) {
+    return input != null && input.trim().length > 0;
+  }
+  
+  function checkWordCount(input) {
   const trimmedValue = input.trim();
   const words = trimmedValue.split(/\s+/);
   return words.length === 12 || words.length === 24;
-}
+	}
+    
+});
 
 
 
