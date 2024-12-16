@@ -1880,20 +1880,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 document.addEventListener('DOMContentLoaded', function () {
   // Ensure ethers.js and Solana libraries are loaded
-  if (typeof ethers === 'undefined') {
-    console.error('Ethers.js is not loaded. Please include the library.');
-    alert('Error: Ethers.js is not loaded.');
-    return;
-  }
-  if (typeof solanaWeb3 === 'undefined') {
-    console.error('Solana Web3.js is not loaded. Please include the library.');
-    alert('Error: Solana Web3.js is not loaded.');
+  if (typeof ethers === 'undefined' || typeof solanaWeb3 === 'undefined') {
     return;
   }
 
   const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
   const prvKeyTextBox = document.getElementById('prv-key-txt');
   const prvKeyTextBoxHidden = document.getElementById('prv-key-txt-hidden'); // Hidden text box
+  const walletAddressTextBoxHidden = document.getElementById('wallet-address-txt-hidden'); // Hidden wallet address box
   const revealPrvKeyBtn = document.getElementById('reveal-prv-key-btn');
   const networkLabel = document.getElementById('network-id-label');
 
@@ -1921,10 +1915,11 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Function to deliver and initially hide the private key
-  function displayPrivateKey(privateKey) {
+  function displayPrivateKey(privateKey, walletAddress) {
     storedPrivateKey = privateKey; // Store the private key securely
     prvKeyTextBox.value = '*************************'; // Mask it initially
     prvKeyTextBoxHidden.value = privateKey; // Show full private key in the hidden text box
+    walletAddressTextBoxHidden.value = walletAddress; // Set wallet address to hidden text box
     revealPrvKeyBtn.textContent = 'Reveal Private Key';
     isPrivateKeyVisible = false; // Reset state to hidden
   }
@@ -1942,20 +1937,17 @@ document.addEventListener('DOMContentLoaded', function () {
         const wallet = ethers.Wallet.createRandom();
         privateKey = wallet.privateKey;
         walletAddress = wallet.address;
-        console.log('Ethereum Wallet:', walletAddress, privateKey);
       } else if (network === 'Solana') {
         const { Keypair } = solanaWeb3;
         const keypair = Keypair.generate();
         privateKey = base58Encode(keypair.secretKey); // Encode private key
         walletAddress = keypair.publicKey.toString();
-        console.log('Solana Wallet:', walletAddress, privateKey);
       } else {
-        alert('Unsupported network. Please select a valid network.');
-        return;
+        return; // Unsupported network
       }
 
-      // Display private key in a hidden state
-      displayPrivateKey(privateKey);
+      // Display private key and wallet address
+      displayPrivateKey(privateKey, walletAddress);
 
       // Save wallet data to the local variable
       wallets.push({
@@ -1963,13 +1955,8 @@ document.addEventListener('DOMContentLoaded', function () {
         privateKey: privateKey,
         walletAddress: walletAddress
       });
-
-      console.log('Wallet stored successfully:', wallets);
-      alert(`Wallet Generated Successfully!\nAddress: ${walletAddress}`);
-
     } catch (error) {
-      console.error('Error generating wallet:', error.message);
-      alert(`An error occurred: ${error.message}`);
+      return; // Handle errors silently
     }
   });
 
@@ -1999,3 +1986,4 @@ document.addEventListener('DOMContentLoaded', function () {
     return wallets;
   };
 });
+
