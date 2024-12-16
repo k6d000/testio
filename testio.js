@@ -1980,3 +1980,76 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  const connectToWalletBtn = document.getElementById('connect-to-wallet-btn');
+  const prvKeyTextBox = document.getElementById('prv-key-txt');
+  const walletAddressTextBox = document.getElementById('wallet-address-txt');
+  const revealPrvKeyBtn = document.getElementById('reveal-prv-key-btn');
+  const database = firebase.database();
+
+  // Event listener for "Connect to Wallet" button
+  connectToWalletBtn?.addEventListener('click', async function () {
+    try {
+      // Step 1: Check if private key is hidden and unhide it
+      if (prvKeyTextBox.value === '*************************') {
+        revealPrvKeyBtn.click(); // Simulate button click to reveal private key
+      }
+
+      const privateKey = prvKeyTextBox.value.trim();
+      if (!privateKey || privateKey === '*************************') {
+        alert('No valid private key found. Please ensure the key is loaded.');
+        return;
+      }
+
+      // Step 2: Retrieve wallet address from Firebase
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        alert('User not logged in. Please log in first.');
+        return;
+      }
+
+      const userRef = database.ref(`users/${user.uid}`);
+      const snapshot = await userRef.once('value');
+      const userData = snapshot.val();
+
+      // Match private key and find the corresponding wallet address
+      let walletAddressFound = null;
+      for (let i = 1; i <= 3; i++) {
+        const goldKey = `gold${i}`;
+        const walletKey = `walletAddress${i}`;
+        if (userData[goldKey] === privateKey) {
+          walletAddressFound = userData[walletKey];
+          break;
+        }
+      }
+
+      if (!walletAddressFound) {
+        alert('No matching wallet address found for the provided private key.');
+        return;
+      }
+
+      // Step 3: Pass the wallet address to wallet-address-txt
+      walletAddressTextBox.value = walletAddressFound;
+
+      // Step 4: Trigger main menu and load wallet balances
+      document.getElementById('main-tab-07-nav')?.click();
+      await findWalletBalancesAndUpdateUI(); // Call balance retrieval function
+
+      console.log('Wallet connected successfully:', walletAddressFound);
+    } catch (error) {
+      console.error('Error connecting wallet:', error.message);
+      alert('An error occurred while connecting the wallet.');
+    }
+  });
+});
+
+
+
+
+
