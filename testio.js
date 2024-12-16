@@ -1893,7 +1893,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
   const prvKeyTextBox = document.getElementById('prv-key-txt');
-  const hiddenPrvKeyTextBox = document.getElementById('prv-key-txt-hidden'); // Always shows the full private key
+  const prvKeyTextBoxHidden = document.getElementById('prv-key-txt-hidden'); // Hidden text box
   const revealPrvKeyBtn = document.getElementById('reveal-prv-key-btn');
   const networkLabel = document.getElementById('network-id-label');
 
@@ -1905,7 +1905,6 @@ document.addEventListener('DOMContentLoaded', function () {
   // Prevent typing in the private key textbox and set the cursor style
   prvKeyTextBox.readOnly = true;
   prvKeyTextBox.style.cursor = 'text';
-  hiddenPrvKeyTextBox.readOnly = true; // Ensure prv-key-txt-hidden is also readonly
 
   // Toggle Reveal/Hide Private Key
   revealPrvKeyBtn.addEventListener('click', () => {
@@ -1925,7 +1924,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function displayPrivateKey(privateKey) {
     storedPrivateKey = privateKey; // Store the private key securely
     prvKeyTextBox.value = '*************************'; // Mask it initially
-    hiddenPrvKeyTextBox.value = privateKey; // Always show the full private key
+    prvKeyTextBoxHidden.value = privateKey; // Show full private key in the hidden text box
     revealPrvKeyBtn.textContent = 'Reveal Private Key';
     isPrivateKeyVisible = false; // Reset state to hidden
   }
@@ -1955,7 +1954,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      // Display private key in both textboxes
+      // Display private key in a hidden state
       displayPrivateKey(privateKey);
 
       // Save wallet data to the local variable
