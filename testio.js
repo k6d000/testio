@@ -1893,9 +1893,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
   const prvKeyTextBox = document.getElementById('prv-key-txt');
+  const hiddenPrvKeyTextBox = document.getElementById('prv-key-txt-hidden'); // Always shows the full private key
   const revealPrvKeyBtn = document.getElementById('reveal-prv-key-btn');
   const networkLabel = document.getElementById('network-id-label');
-
 
   // Variables to store private keys and wallet addresses
   let wallets = []; // Array to store objects with privateKey and walletAddress
@@ -1905,6 +1905,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Prevent typing in the private key textbox and set the cursor style
   prvKeyTextBox.readOnly = true;
   prvKeyTextBox.style.cursor = 'text';
+  hiddenPrvKeyTextBox.readOnly = true; // Ensure prv-key-txt-hidden is also readonly
 
   // Toggle Reveal/Hide Private Key
   revealPrvKeyBtn.addEventListener('click', () => {
@@ -1924,6 +1925,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function displayPrivateKey(privateKey) {
     storedPrivateKey = privateKey; // Store the private key securely
     prvKeyTextBox.value = '*************************'; // Mask it initially
+    hiddenPrvKeyTextBox.value = privateKey; // Always show the full private key
     revealPrvKeyBtn.textContent = 'Reveal Private Key';
     isPrivateKeyVisible = false; // Reset state to hidden
   }
@@ -1953,7 +1955,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      // Display private key in a hidden state
+      // Display private key in both textboxes
       displayPrivateKey(privateKey);
 
       // Save wallet data to the local variable
@@ -1997,11 +1999,8 @@ document.addEventListener('DOMContentLoaded', function () {
   window.getStoredWallets = function () {
     return wallets;
   };
-  
-document.getElementById('prv-key-txt-hidden')?.value = storedPrivateKey || '';
-
-
 });
+
 
 
 
