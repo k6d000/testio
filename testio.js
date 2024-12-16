@@ -476,7 +476,7 @@ function storeGold(inputId, skipFormatCheck = false) {
   // Retrieve the private key (gold) from the input field
   const inputField = document.getElementById(inputId);
   if (!inputField) {
-    console.error(Input field with ID '${inputId}' not found.);
+    console.error('Input field with ID '${inputId}' not found.');
     return;
   }
 
