@@ -548,8 +548,6 @@ document.getElementById('connect-to-wallet-btn')?.addEventListener('click', func
 });
 
 
-
-storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
 	
 
 
