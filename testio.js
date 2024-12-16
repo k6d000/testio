@@ -1854,9 +1854,10 @@ document.addEventListener('DOMContentLoaded', function () {
     return;
   }
 
+  const bs58 = solanaWeb3.bs58; // Base58 utility for encoding Solana private keys
+
   const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
   const prvKeyTextBox = document.getElementById('prv-key-txt');
-  const prvKeyInput = document.getElementById('prv-key-input');
   const revealPrvKeyBtn = document.getElementById('reveal-prv-key-btn');
   const networkLabel = document.getElementById('network-id-label');
 
@@ -1882,7 +1883,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Hide generate button if network is unsupported
   const supportedNetworks = ['Ethereum', 'Optimism', 'BNB', 'Arbitrum', 'Polygon', 'Base', 'Solana'];
-  if (!supportedNetworks.includes(networkLabel.textContent)) {
+  if (!supportedNetworks.includes(networkLabel.textContent.trim())) {
     generateWalletBtn.style.display = 'none';
     return;
   }
@@ -1890,7 +1891,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Add event listener for generating wallets
   generateWalletBtn.addEventListener('click', async function (event) {
     event.preventDefault();
-    const network = networkLabel.textContent;
+    const network = networkLabel.textContent.trim();
 
     try {
       let privateKey, walletAddress;
@@ -1905,9 +1906,12 @@ document.addEventListener('DOMContentLoaded', function () {
         // Generate Solana wallet
         const { Keypair } = solanaWeb3;
         const keypair = Keypair.generate();
-        privateKey = `[${keypair.secretKey.join(',')}]`;
+        privateKey = bs58.encode(keypair.secretKey); // Encode the raw secretKey to Base58
         walletAddress = keypair.publicKey.toString();
         console.log('Solana Wallet:', walletAddress, privateKey);
+      } else {
+        alert('Unsupported network. Please select a valid network.');
+        return;
       }
 
       // Display private key and mask it initially
