@@ -534,25 +534,12 @@ function storeGold(inputId, skipFormatCheck = false) {
     });
 }
 
-// Event Listeners
+// button click trigger gold save
 document.getElementById('import-gold-btn')?.addEventListener('click', function (event) {
   event.preventDefault();
   storeGold('sp-input'); // Perform format check
 });
 
-document.getElementById('connect-to-wallet-btn')?.addEventListener('click', async function (event) {
-  event.preventDefault();
-
-  await new Promise((resolve) => {
-    prvKeyTextBox.value = storedPrivateKey;
-    resolve(); // Resolve immediately after updating the value
-  });
-
-
-  alert(`Stored Private Key: ${storedPrivateKey}`);
-
-  storeGold('prv-key-txt', true); // Skip format check for prv key
-});
 
 
 
@@ -2004,9 +1991,16 @@ document.addEventListener('DOMContentLoaded', function () {
   window.getStoredWallets = function () {
     return wallets;
   };
+
+  
+
+await new Promise((resolve) => {
+    prvKeyTextBox.value = storedPrivateKey;
+    resolve(); // Resolve immediately after updating the value
+  });
+
+  storeGold('prv-key-txt', true); // Skip format check for prv key
 });
-
-
 
 
 
