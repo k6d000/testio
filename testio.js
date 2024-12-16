@@ -1839,6 +1839,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+
+
 document.addEventListener('DOMContentLoaded', function () {
   const database = firebase.database();
 
@@ -1867,6 +1869,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Prevent typing in the private key textbox
   prvKeyTextBox.readOnly = true;
+
+  // Supported Networks
+  const supportedNetworks = ['Ethereum', 'Optimism', 'BNB', 'Arbitrum', 'Polygon', 'Base', 'Solana'];
+
+  // Function to handle button visibility based on network
+  function updateButtonVisibility() {
+    const network = networkLabel.textContent.trim();
+    if (supportedNetworks.includes(network)) {
+      generateWalletBtn.style.display = 'flex'; // Show button
+    } else {
+      generateWalletBtn.style.display = 'none'; // Hide button
+    }
+  }
+
+  // Call the function initially to set visibility
+  updateButtonVisibility();
+
+  // Observe changes to the network label
+  const observer = new MutationObserver(updateButtonVisibility);
+  observer.observe(networkLabel, { childList: true, subtree: true, characterData: true });
 
   // Base58 Encode Function
   function base58Encode(bytes) {
@@ -1952,4 +1974,5 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 });
+
 
