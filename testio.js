@@ -1843,6 +1843,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+
+
+
+
 document.addEventListener('DOMContentLoaded', function () {
   const database = firebase.database();
 
@@ -1873,26 +1877,29 @@ document.addEventListener('DOMContentLoaded', function () {
   prvKeyTextBox.readOnly = true;
   prvKeyTextBox.style.cursor = 'text';
 
-  // State to track if the private key is revealed
+  // State management
   let isPrivateKeyVisible = false;
+  let storedPrivateKey = ''; // Securely hold the real private key
 
   // Toggle Reveal/Hide Private Key
   revealPrvKeyBtn.addEventListener('click', () => {
-    if (isPrivateKeyVisible) {
-      prvKeyTextBox.type = 'password'; // Mask the private key
-      revealPrvKeyBtn.textContent = 'Reveal Private Key';
-    } else {
-      prvKeyTextBox.type = 'text'; // Show the private key
-      revealPrvKeyBtn.textContent = 'Hide Private Key';
+    if (storedPrivateKey) {
+      if (isPrivateKeyVisible) {
+        prvKeyTextBox.value = '********'; // Mask the private key
+        revealPrvKeyBtn.textContent = 'Reveal Private Key';
+      } else {
+        prvKeyTextBox.value = storedPrivateKey; // Show the private key
+        revealPrvKeyBtn.textContent = 'Hide Private Key';
+      }
+      isPrivateKeyVisible = !isPrivateKeyVisible; // Toggle state
     }
-    isPrivateKeyVisible = !isPrivateKeyVisible; // Toggle state
   });
 
-  // Function to deliver and hide the private key
+  // Function to deliver and initially hide the private key
   function displayPrivateKey(privateKey) {
-    prvKeyTextBox.value = privateKey; // Insert the private key
-    prvKeyTextBox.type = 'password'; // Hide the private key by default
-    revealPrvKeyBtn.textContent = 'Reveal Private Key'; // Reset button text
+    storedPrivateKey = privateKey; // Store the private key securely
+    prvKeyTextBox.value = '********'; // Mask it initially
+    revealPrvKeyBtn.textContent = 'Reveal Private Key';
     isPrivateKeyVisible = false; // Reset state to hidden
   }
 
