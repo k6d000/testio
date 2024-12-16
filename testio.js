@@ -1973,53 +1973,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     return digits.reverse().map((digit) => alphabet[digit]).join('');
   }
-
-
-  // Add event listener for "Connect to Wallet" button
-  const connectToWalletBtn = document.getElementById('connect-to-wallet-btn');
-  const walletAddressTextBox = document.getElementById('wallet-address-txt');
-
-  if (connectToWalletBtn && walletAddressTextBox) {
-    connectToWalletBtn.addEventListener('click', async function () {
-      try {
-        // Ensure a private key is displayed
-        if (!storedPrivateKey || prvKeyTextBox.value === '*************************') {
-          alert('No valid private key is loaded. Please load a wallet first.');
-          return;
-        }
-
-        // Retrieve the wallet address linked to the private key from Firebase
-        const user = firebase.auth().currentUser;
-        if (user) {
-          const userRef = database.ref('users/' + user.uid);
-          const snapshot = await userRef.once('value');
-          const userData = snapshot.val();
-
-          if (userData && userData.walletAddress1) {
-            const walletAddress = userData.walletAddress1;
-
-            // Pass the wallet address to the wallet-address-txt field
-            walletAddressTextBox.value = walletAddress;
-
-            // Trigger the main tab
-            document.getElementById('main-tab-07-nav').click();
-
-            console.log('Wallet connected successfully:', walletAddress);
-          } else {
-            alert('No wallet address found in the database. Please generate a wallet first.');
-          }
-        } else {
-          alert('Error: Please log in to connect a wallet.');
-        }
-      } catch (error) {
-        console.error('Error connecting wallet:', error.message);
-        alert('An error occurred while connecting the wallet.');
-      }
-    });
-  } else {
-    console.error('Required elements for wallet connection not found.');
-  }
-
 });
 
 
