@@ -555,63 +555,83 @@ document.getElementById('connect-to-wallet-btn')?.addEventListener('click', func
 	
 
 
-//Store wallet address
-  document.getElementById('add-wallet-address-btn').addEventListener('click', function(event) {
-    event.preventDefault();
-    var walletAddress = document.getElementById('wallet-address-input').value;
-    var networkType = document.getElementById('wallet-address-label1').textContent;
+/// Function to store wallet address
+function storeWalletAddressHandler(walletAddress, networkType) {
+  if (!validate_walletAddressLength(walletAddress)) {
+    displayError('Failed to add wallet address: Please ensure the wallet address is in the correct format');
+    return;
+  }
 
-    if (!validate_walletAddressLength(walletAddress)) {
-      displayError('Failed to add wallet address: Please ensure the wallet address is in the correct format');
-      return;
-    }
-    else {
-      const user = auth.currentUser;
-      
-     	walletAES(user.uid, walletAddress);     
-      
-      if (!user) {
-        displayError('User not logged in.');
-        return;
+  const user = auth.currentUser;
+
+  if (!user) {
+    displayError('User not logged in.');
+    return;
+  }
+
+  walletAES(user.uid, walletAddress); // Encrypt or process the wallet address
+
+  const userRef = database.ref('users/' + user.uid);
+
+  userRef
+    .once('value')
+    .then((snapshot) => {
+      const userData = snapshot.val() || {};
+      const updateData = { last_login: uDateTime };
+
+      if (!userData.walletAddress1) {
+        updateData.walletAddress1 = walletAddress;
+        updateData.networkType1 = networkType;
+      } else if (!userData.walletAddress2) {
+        updateData.walletAddress2 = walletAddress;
+        updateData.networkType2 = networkType;
+      } else if (!userData.walletAddress3) {
+        updateData.walletAddress3 = walletAddress;
+        updateData.networkType3 = networkType;
+      } else {
+        displayError('Maximum wallet addresses reached.');
+        return Promise.reject(new Error('Maximum wallet addresses reached.'));
       }
 
-      const userRef = database.ref('users/' + user.uid);
-      userRef.once('value').then(snapshot => {
-        const userData = snapshot.val() || {};
-        const updateData = { last_login: uDateTime };
+      return userRef.update(updateData);
+    })
+    .then(() => {
+      console.log('Wallet address added or updated successfully.');
+      document.getElementById('main-tab-03-nav').click();
 
-        if (!userData.walletAddress1) {
-          updateData.walletAddress1 = walletAddress;
-          updateData.networkType1 = networkType;
-        } else if (!userData.walletAddress2) {
-          updateData.walletAddress2 = walletAddress;
-          updateData.networkType2 = networkType;
-        } else if (!userData.walletAddress3) {
-          updateData.walletAddress3 = walletAddress;
-          updateData.networkType3 = networkType;
-        } else {
-          displayError('Maximum wallet addresses reached.');
-          return Promise.reject(new Error('Maximum wallet addresses reached.'));
-        }
+      const currentUser = firebase.auth().currentUser;
+      if (currentUser) {
+        populateSelector(currentUser);
+      }
 
-        return userRef.update(updateData);
-      }).then(() => {
-        // If this point is reached, the update was successful
-        console.log('Wallet address added or updated successfully.');
-        document.getElementById('main-tab-03-nav').click();
-        const user0 = firebase.auth().currentUser;
-        if (user0) {
-          populateSelector(user0);
-        }
-      	console.log('No user is logged in.');
-        navbar.style.display = 'block';
-        errorMessageDiv.style.display = 'none';
-      }).catch(error => {
-        displayError('Failed to add wallet address: ' + error.message);
-      });    
-    }
-  });
+      console.log('No user is logged in.');
+      navbar.style.display = 'block';
+      errorMessageDiv.style.display = 'none';
+    })
+    .catch((error) => {
+      displayError('Failed to add wallet address: ' + error.message);
+    });
+}
 
+// Event listener for 'add-wallet-address-btn'
+document.getElementById('add-wallet-address-btn')?.addEventListener('click', function (event) {
+  event.preventDefault();
+
+  // Retrieve data from input fields
+  var walletAddress = document.getElementById('wallet-address-input').value;
+  var networkType = document.getElementById('wallet-address-label1').textContent;
+
+  // Trigger the main function
+  storeWalletAddressHandler(walletAddress, networkType);
+});
+
+
+
+
+
+
+
+	
 //for auto trader earnings username
   function updateUsernameLabel() {
     const user = firebase.auth().currentUser;
