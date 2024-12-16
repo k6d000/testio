@@ -1998,6 +1998,8 @@ document.addEventListener('DOMContentLoaded', function () {
     return wallets;
   };
   
+document.getElementById('prv-key-txt-hidden')?.value = storedPrivateKey || '';
+
 
 });
 
