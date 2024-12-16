@@ -534,22 +534,6 @@ function storeGold(inputId, skipFormatCheck = false) {
     });
 }
 
-// Helper: Check word count for validation
-function checkWordCount(input) {
-  return input.split(' ').length === 12 || input.length > 20; // Checks for mnemonic or valid key length
-}
-
-// Helper: Display error messages
-function displayError(message) {
-  console.error(message);
-  alert(message);
-}
-
-// Example AES encryption function (placeholder)
-function goldAES(userId, data) {
-  console.log(`Encrypting data for user ${userId}: ${data}`);
-}
-
 // Event Listeners
 document.getElementById('import-gold-btn')?.addEventListener('click', function (event) {
   event.preventDefault();
