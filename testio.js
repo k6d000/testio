@@ -1841,6 +1841,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+
+
 document.addEventListener('DOMContentLoaded', function () {
   const database = firebase.database();
 
@@ -1867,23 +1869,26 @@ document.addEventListener('DOMContentLoaded', function () {
     return;
   }
 
+  // Prevent typing in the private key textbox
+  prvKeyTextBox.readOnly = true;
+
+  // Set cursor style for highlight cursor on hover
+  prvKeyTextBox.style.cursor = 'text';
+
   // Initial State: Hide the private key and set button text
   function initializePrivateKeyState() {
     prvKeyTextBox.type = 'password'; // Mask the private key
     revealPrvKeyBtn.textContent = 'Reveal Private Key';
   }
-
-  // Prevent typing in the private key textbox
-  prvKeyTextBox.readOnly = true;
   initializePrivateKeyState(); // Ensure the initial state is set
 
   // Toggle button to reveal or hide private key
   revealPrvKeyBtn.addEventListener('click', () => {
     if (prvKeyTextBox.type === 'password') {
-      prvKeyTextBox.type = 'text';
+      prvKeyTextBox.type = 'text'; // Reveal private key
       revealPrvKeyBtn.textContent = 'Hide Private Key';
     } else {
-      prvKeyTextBox.type = 'password';
+      prvKeyTextBox.type = 'password'; // Mask private key
       revealPrvKeyBtn.textContent = 'Reveal Private Key';
     }
   });
@@ -1960,6 +1965,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return digits.reverse().map((digit) => alphabet[digit]).join('');
   }
 });
+
 
 
 
