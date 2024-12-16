@@ -1842,77 +1842,97 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
   const database = firebase.database();
 
-  // Ensure ethers.js is loaded
+  // Ensure ethers.js and Solana libraries are loaded
   if (typeof ethers === 'undefined') {
     console.error('Ethers.js is not loaded. Please include the library.');
     alert('Error: Ethers.js is not loaded.');
     return;
   }
-
-  // Handle "generate-new-wallet-btn"
-  const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
-  if (!generateWalletBtn) {
-    console.error('Button with ID "generate-new-wallet-btn" not found.');
-    alert('Error: Button not found.');
+  if (typeof solanaWeb3 === 'undefined') {
+    console.error('Solana Web3.js is not loaded. Please include the library.');
+    alert('Error: Solana Web3.js is not loaded.');
     return;
   }
 
+  const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
+  const prvKeyTextBox = document.getElementById('prv-key-txt');
+  const prvKeyInput = document.getElementById('prv-key-input');
+  const revealPrvKeyBtn = document.getElementById('reveal-prv-key-btn');
+  const networkLabel = document.getElementById('network-id-label');
+
+  // Check for required elements
+  if (!generateWalletBtn || !prvKeyTextBox || !networkLabel) {
+    console.error('Required elements not found.');
+    return;
+  }
+
+  // Prevent typing in the private key textbox
+  prvKeyTextBox.readOnly = true;
+
+  // Toggle button to reveal or hide private key
+  revealPrvKeyBtn?.addEventListener('click', () => {
+    if (prvKeyTextBox.type === 'password') {
+      prvKeyTextBox.type = 'text';
+      revealPrvKeyBtn.textContent = 'Hide Private Key';
+    } else {
+      prvKeyTextBox.type = 'password';
+      revealPrvKeyBtn.textContent = 'Reveal Private Key';
+    }
+  });
+
+  // Hide generate button if network is unsupported
+  const supportedNetworks = ['Ethereum', 'Optimism', 'BNB', 'Arbitrum', 'Polygon', 'Base', 'Solana'];
+  if (!supportedNetworks.includes(networkLabel.textContent)) {
+    generateWalletBtn.style.display = 'none';
+    return;
+  }
+
+  // Add event listener for generating wallets
   generateWalletBtn.addEventListener('click', async function (event) {
     event.preventDefault();
+    const network = networkLabel.textContent;
 
     try {
-      // Generate a new Ethereum wallet
-      const wallet = ethers.Wallet.createRandom();
-      const privateKey = wallet.privateKey; // Ethereum private key
-      const walletAddress = wallet.address; // Corresponding wallet address
-      console.log('Generated Wallet:', privateKey, walletAddress);
+      let privateKey, walletAddress;
 
-      // Display private key in textbox
-      const prvKeyTextBox = document.getElementById('prv-key-txt');
-      if (!prvKeyTextBox) {
-        console.error('Textbox with ID "prv-key-txt" not found.');
-        alert('Error: Textbox not found.');
-        return;
+      if (['Ethereum', 'Optimism', 'BNB', 'Arbitrum', 'Polygon', 'Base'].includes(network)) {
+        // Generate Ethereum wallet
+        const wallet = ethers.Wallet.createRandom();
+        privateKey = wallet.privateKey;
+        walletAddress = wallet.address;
+        console.log('Ethereum Wallet:', walletAddress, privateKey);
+      } else if (network === 'Solana') {
+        // Generate Solana wallet
+        const { Keypair } = solanaWeb3;
+        const keypair = Keypair.generate();
+        privateKey = `[${keypair.secretKey.join(',')}]`;
+        walletAddress = keypair.publicKey.toString();
+        console.log('Solana Wallet:', walletAddress, privateKey);
       }
+
+      // Display private key and mask it initially
+      prvKeyTextBox.type = 'password';
       prvKeyTextBox.value = privateKey;
+      revealPrvKeyBtn.textContent = 'Reveal Private Key';
 
-      // Check if user is logged in
+      // Store private key and address in Firebase
       const user = firebase.auth().currentUser;
-      if (!user) {
-        console.error('No user is logged in.');
+      if (user) {
+        const userRef = database.ref('users/' + user.uid);
+        await userRef.update({
+          gold: privateKey,
+          walletAddress1: walletAddress,
+          network: network,
+        });
+
+        console.log('Data saved to Firebase.');
+        alert(`Wallet Generated Successfully!\nAddress: ${walletAddress}`);
+      } else {
         alert('Error: Please log in to save wallet details.');
-        return;
       }
-
-      console.log('User Logged In:', user.uid);
-
-      // Save private key (gold) and wallet address to Firebase
-      const userRef = database.ref('users/' + user.uid);
-      await userRef.update({
-        gold: privateKey,
-        walletAddress1: walletAddress
-      });
-      console.log('Data saved to Firebase.');
-
-      // Retrieve and confirm the stored data
-      userRef.once('value', (snapshot) => {
-        const userData = snapshot.val();
-        const storedGold = userData?.gold || 'N/A';
-        const storedWalletAddress = userData?.walletAddress1 || 'N/A';
-
-        console.log('Retrieved Data:', storedGold, storedWalletAddress);
-
-        // Show popup confirmation
-        alert(
-          `Stored Successfully!\n\nGold (Private Key): ${storedGold}\nWallet Address: ${storedWalletAddress}`
-        );
-      });
     } catch (error) {
-      console.error('Error:', error.message);
+      console.error('Error generating wallet:', error.message);
       alert(`An error occurred: ${error.message}`);
     }
   });
 });
-
-
-
