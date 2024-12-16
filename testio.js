@@ -545,7 +545,7 @@ document.getElementById('import-gold-btn')?.addEventListener('click', function (
 document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
   event.preventDefault();
   storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
-  handleStoreWalletAddress('wallet-address-txt-hidden', 'wallet-address-label1');
+  //handleStoreWalletAddress('wallet-address-txt-hidden', 'wallet-address-label1');
 });
 
 
