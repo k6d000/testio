@@ -542,7 +542,7 @@ document.getElementById('import-gold-btn')?.addEventListener('click', function (
 
 document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
   event.preventDefault();
-document.getElementById('reveal-prv-key-btn')?.click(); //click to reveal prv key
+//document.getElementById('reveal-prv-key-btn')?.click(); //click to reveal prv key
   storeGold('prv-key-txt', true); // Skip format check for prv key
 });
 
