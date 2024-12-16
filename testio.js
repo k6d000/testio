@@ -542,6 +542,7 @@ document.getElementById('import-gold-btn')?.addEventListener('click', function (
 
 document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
   event.preventDefault();
+prvKeyTextBox.value = storedPrivateKey;
   storeGold('prv-key-txt', true); // Skip format check for prv key
 });
 
