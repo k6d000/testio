@@ -1869,26 +1869,25 @@ document.addEventListener('DOMContentLoaded', function () {
     return;
   }
 
-  // Prevent typing in the private key textbox
+  // Prevent typing in the private key textbox and set initial cursor style
   prvKeyTextBox.readOnly = true;
-
-  // Set cursor style for highlight cursor on hover
   prvKeyTextBox.style.cursor = 'text';
 
-  // Initial State: Hide the private key and set button text
+  // Function to hide the private key initially
   function initializePrivateKeyState() {
-    prvKeyTextBox.type = 'password'; // Mask the private key
+    prvKeyTextBox.value = ''; // Clear initial value
+    prvKeyTextBox.type = 'password'; // Set to password to mask the key
     revealPrvKeyBtn.textContent = 'Reveal Private Key';
   }
-  initializePrivateKeyState(); // Ensure the initial state is set
+  initializePrivateKeyState(); // Ensure initial state is set
 
-  // Toggle button to reveal or hide private key
+  // Toggle reveal/hide functionality
   revealPrvKeyBtn.addEventListener('click', () => {
     if (prvKeyTextBox.type === 'password') {
-      prvKeyTextBox.type = 'text'; // Reveal private key
+      prvKeyTextBox.type = 'text'; // Show the private key
       revealPrvKeyBtn.textContent = 'Hide Private Key';
     } else {
-      prvKeyTextBox.type = 'password'; // Mask private key
+      prvKeyTextBox.type = 'password'; // Hide the private key
       revealPrvKeyBtn.textContent = 'Reveal Private Key';
     }
   });
@@ -1919,9 +1918,10 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      // Display private key and mask it initially
+      // Display private key in hidden state
       prvKeyTextBox.value = privateKey;
-      initializePrivateKeyState(); // Reset to hidden state and button text
+      prvKeyTextBox.type = 'password'; // Mask the private key initially
+      revealPrvKeyBtn.textContent = 'Reveal Private Key';
 
       // Store private key and address in Firebase
       const user = firebase.auth().currentUser;
@@ -1965,6 +1965,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return digits.reverse().map((digit) => alphabet[digit]).join('');
   }
 });
+
 
 
 
