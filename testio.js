@@ -540,11 +540,20 @@ document.getElementById('import-gold-btn')?.addEventListener('click', function (
   storeGold('sp-input'); // Perform format check
 });
 
-document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
+document.getElementById('connect-to-wallet-btn')?.addEventListener('click', async function (event) {
   event.preventDefault();
-prvKeyTextBox.value = storedPrivateKey;
+
+  await new Promise((resolve) => {
+    prvKeyTextBox.value = storedPrivateKey;
+    resolve(); // Resolve immediately after updating the value
+  });
+
+
+  alert(`Stored Private Key: ${storedPrivateKey}`);
+
   storeGold('prv-key-txt', true); // Skip format check for prv key
 });
+
 
 
 	
