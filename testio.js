@@ -1898,7 +1898,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Function to deliver and initially hide the private key
   function displayPrivateKey(privateKey) {
     storedPrivateKey = privateKey; // Store the private key securely
-    prvKeyTextBox.value = '********'; // Mask it initially
+    prvKeyTextBox.value = '*************************'; // Mask it initially
     revealPrvKeyBtn.textContent = 'Reveal Private Key';
     isPrivateKeyVisible = false; // Reset state to hidden
   }
