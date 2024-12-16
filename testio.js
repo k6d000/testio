@@ -1893,10 +1893,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
   const prvKeyTextBox = document.getElementById('prv-key-txt');
-const hiddenPrvKeyTextBox = document.getElementById('prv-key-txt-hidden');
+let hiddenPrvKeyTextBox = document.getElementById('prv-key-txt-hidden');
   const revealPrvKeyBtn = document.getElementById('reveal-prv-key-btn');
   const networkLabel = document.getElementById('network-id-label');
-hiddenPrvKeyTextBox = prvKeyTextBox;
+
 
   // Variables to store private keys and wallet addresses
   let wallets = []; // Array to store objects with privateKey and walletAddress
@@ -1999,6 +1999,8 @@ hiddenPrvKeyTextBox = prvKeyTextBox;
     return wallets;
   };
   
+hiddenPrvKeyTextBox = prvKeyTextBox;
+
 });
 
 
