@@ -1893,7 +1893,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
   const prvKeyTextBox = document.getElementById('prv-key-txt');
-let hiddenPrvKeyTextBox = document.getElementById('prv-key-txt-hidden');
   const revealPrvKeyBtn = document.getElementById('reveal-prv-key-btn');
   const networkLabel = document.getElementById('network-id-label');
 
@@ -1999,7 +1998,6 @@ let hiddenPrvKeyTextBox = document.getElementById('prv-key-txt-hidden');
     return wallets;
   };
   
-hiddenPrvKeyTextBox = prvKeyTextBox;
 
 });
 
