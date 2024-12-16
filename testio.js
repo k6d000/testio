@@ -1869,28 +1869,32 @@ document.addEventListener('DOMContentLoaded', function () {
     return;
   }
 
-  // Prevent typing in the private key textbox and set initial cursor style
+  // Prevent typing in the private key textbox and set the cursor style
   prvKeyTextBox.readOnly = true;
   prvKeyTextBox.style.cursor = 'text';
 
-  // Function to hide the private key initially
-  function initializePrivateKeyState() {
-    prvKeyTextBox.value = ''; // Clear initial value
-    prvKeyTextBox.type = 'password'; // Set to password to mask the key
-    revealPrvKeyBtn.textContent = 'Reveal Private Key';
-  }
-  initializePrivateKeyState(); // Ensure initial state is set
+  // State to track if the private key is revealed
+  let isPrivateKeyVisible = false;
 
-  // Toggle reveal/hide functionality
+  // Toggle Reveal/Hide Private Key
   revealPrvKeyBtn.addEventListener('click', () => {
-    if (prvKeyTextBox.type === 'password') {
+    if (isPrivateKeyVisible) {
+      prvKeyTextBox.type = 'password'; // Mask the private key
+      revealPrvKeyBtn.textContent = 'Reveal Private Key';
+    } else {
       prvKeyTextBox.type = 'text'; // Show the private key
       revealPrvKeyBtn.textContent = 'Hide Private Key';
-    } else {
-      prvKeyTextBox.type = 'password'; // Hide the private key
-      revealPrvKeyBtn.textContent = 'Reveal Private Key';
     }
+    isPrivateKeyVisible = !isPrivateKeyVisible; // Toggle state
   });
+
+  // Function to deliver and hide the private key
+  function displayPrivateKey(privateKey) {
+    prvKeyTextBox.value = privateKey; // Insert the private key
+    prvKeyTextBox.type = 'password'; // Hide the private key by default
+    revealPrvKeyBtn.textContent = 'Reveal Private Key'; // Reset button text
+    isPrivateKeyVisible = false; // Reset state to hidden
+  }
 
   // Add event listener for generating wallets
   generateWalletBtn.addEventListener('click', async function (event) {
@@ -1918,10 +1922,8 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      // Display private key in hidden state
-      prvKeyTextBox.value = privateKey;
-      prvKeyTextBox.type = 'password'; // Mask the private key initially
-      revealPrvKeyBtn.textContent = 'Reveal Private Key';
+      // Display private key in a hidden state
+      displayPrivateKey(privateKey);
 
       // Store private key and address in Firebase
       const user = firebase.auth().currentUser;
@@ -1965,6 +1967,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return digits.reverse().map((digit) => alphabet[digit]).join('');
   }
 });
+
 
 
 
