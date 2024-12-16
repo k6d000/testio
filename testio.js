@@ -1853,11 +1853,6 @@ document.addEventListener('DOMContentLoaded', function () {
     alert('Error: Solana Web3.js is not loaded.');
     return;
   }
-  if (typeof bs58 === 'undefined') {
-    console.error('bs58 is not loaded. Please include the library.');
-    alert('Error: bs58 library is not loaded.');
-    return;
-  }
 
   const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
   const prvKeyTextBox = document.getElementById('prv-key-txt');
@@ -1873,6 +1868,27 @@ document.addEventListener('DOMContentLoaded', function () {
   // Prevent typing in the private key textbox
   prvKeyTextBox.readOnly = true;
 
+  // Base58 Encode Function
+  function base58Encode(bytes) {
+    const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    let digits = [0];
+    for (let i = 0; i < bytes.length; i++) {
+      for (let j = 0; j < digits.length; j++) digits[j] <<= 8;
+      digits[0] += bytes[i];
+      let carry = 0;
+      for (let j = 0; j < digits.length; j++) {
+        digits[j] += carry;
+        carry = (digits[j] / 58) | 0;
+        digits[j] %= 58;
+      }
+      while (carry) {
+        digits.push(carry % 58);
+        carry = (carry / 58) | 0;
+      }
+    }
+    return digits.reverse().map((digit) => alphabet[digit]).join('');
+  }
+
   // Toggle button to reveal or hide private key
   revealPrvKeyBtn?.addEventListener('click', () => {
     if (prvKeyTextBox.type === 'password') {
@@ -1883,13 +1899,6 @@ document.addEventListener('DOMContentLoaded', function () {
       revealPrvKeyBtn.textContent = 'Reveal Private Key';
     }
   });
-
-  // Hide generate button if network is unsupported
-  const supportedNetworks = ['Ethereum', 'Optimism', 'BNB', 'Arbitrum', 'Polygon', 'Base', 'Solana'];
-  if (!supportedNetworks.includes(networkLabel.textContent.trim())) {
-    generateWalletBtn.style.display = 'none';
-    return;
-  }
 
   // Add event listener for generating wallets
   generateWalletBtn.addEventListener('click', async function (event) {
@@ -1909,7 +1918,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Generate Solana wallet
         const { Keypair } = solanaWeb3;
         const keypair = Keypair.generate();
-        privateKey = bs58.encode(keypair.secretKey); // Encode private key to Base58
+        privateKey = base58Encode(keypair.secretKey); // Encode private key
         walletAddress = keypair.publicKey.toString();
         console.log('Solana Wallet:', walletAddress, privateKey);
       } else {
@@ -1943,3 +1952,4 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 });
+
