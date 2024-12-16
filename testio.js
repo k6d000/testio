@@ -621,11 +621,6 @@ document.getElementById('add-wallet-address-btn')?.addEventListener('click', fun
   handleStoreWalletAddress('wallet-address-input', 'wallet-address-label1');
 });
 
-// Additional button can also trigger the same logic
-document.getElementById('another-button')?.addEventListener('click', function (event) {
-  event.preventDefault();
-  handleStoreWalletAddress('wallet-address-input', 'wallet-address-label1');
-});
 
 // Update username label function
 function updateUsernameLabel() {
