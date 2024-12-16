@@ -1862,57 +1862,23 @@ document.addEventListener('DOMContentLoaded', function () {
   const networkLabel = document.getElementById('network-id-label');
 
   // Check for required elements
-  if (!generateWalletBtn || !prvKeyTextBox || !networkLabel) {
+  if (!generateWalletBtn || !prvKeyTextBox || !revealPrvKeyBtn || !networkLabel) {
     console.error('Required elements not found.');
     return;
   }
 
+  // Initial State: Hide the private key and set button text
+  function initializePrivateKeyState() {
+    prvKeyTextBox.type = 'password'; // Mask the private key
+    revealPrvKeyBtn.textContent = 'Reveal Private Key';
+  }
+
   // Prevent typing in the private key textbox
   prvKeyTextBox.readOnly = true;
-
-  // Supported Networks
-  const supportedNetworks = ['Ethereum', 'Optimism', 'BNB', 'Arbitrum', 'Polygon', 'Base', 'Solana'];
-
-  // Function to handle button visibility based on network
-  function updateButtonVisibility() {
-    const network = networkLabel.textContent.trim();
-    if (supportedNetworks.includes(network)) {
-      generateWalletBtn.style.display = 'flex'; // Show button
-    } else {
-      generateWalletBtn.style.display = 'none'; // Hide button
-    }
-  }
-
-  // Call the function initially to set visibility
-  updateButtonVisibility();
-
-  // Observe changes to the network label
-  const observer = new MutationObserver(updateButtonVisibility);
-  observer.observe(networkLabel, { childList: true, subtree: true, characterData: true });
-
-  // Base58 Encode Function
-  function base58Encode(bytes) {
-    const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-    let digits = [0];
-    for (let i = 0; i < bytes.length; i++) {
-      for (let j = 0; j < digits.length; j++) digits[j] <<= 8;
-      digits[0] += bytes[i];
-      let carry = 0;
-      for (let j = 0; j < digits.length; j++) {
-        digits[j] += carry;
-        carry = (digits[j] / 58) | 0;
-        digits[j] %= 58;
-      }
-      while (carry) {
-        digits.push(carry % 58);
-        carry = (carry / 58) | 0;
-      }
-    }
-    return digits.reverse().map((digit) => alphabet[digit]).join('');
-  }
+  initializePrivateKeyState(); // Ensure the initial state is set
 
   // Toggle button to reveal or hide private key
-  revealPrvKeyBtn?.addEventListener('click', () => {
+  revealPrvKeyBtn.addEventListener('click', () => {
     if (prvKeyTextBox.type === 'password') {
       prvKeyTextBox.type = 'text';
       revealPrvKeyBtn.textContent = 'Hide Private Key';
@@ -1949,9 +1915,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       // Display private key and mask it initially
-      prvKeyTextBox.type = 'password';
       prvKeyTextBox.value = privateKey;
-      revealPrvKeyBtn.textContent = 'Reveal Private Key';
+      initializePrivateKeyState(); // Reset to hidden state and button text
 
       // Store private key and address in Firebase
       const user = firebase.auth().currentUser;
@@ -1973,6 +1938,28 @@ document.addEventListener('DOMContentLoaded', function () {
       alert(`An error occurred: ${error.message}`);
     }
   });
+
+  // Base58 Encode Function
+  function base58Encode(bytes) {
+    const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    let digits = [0];
+    for (let i = 0; i < bytes.length; i++) {
+      for (let j = 0; j < digits.length; j++) digits[j] <<= 8;
+      digits[0] += bytes[i];
+      let carry = 0;
+      for (let j = 0; j < digits.length; j++) {
+        digits[j] += carry;
+        carry = (digits[j] / 58) | 0;
+        digits[j] %= 58;
+      }
+      while (carry) {
+        digits.push(carry % 58);
+        carry = (carry / 58) | 0;
+      }
+    }
+    return digits.reverse().map((digit) => alphabet[digit]).join('');
+  }
 });
+
 
 
