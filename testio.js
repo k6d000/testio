@@ -541,8 +541,15 @@ document.getElementById('import-gold-btn')?.addEventListener('click', function (
 });
 
 
+// button click trigger gold save
+document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
+  event.preventDefault();
+  storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
+});
 
 
+
+storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
 	
 
 
@@ -1888,8 +1895,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
   const prvKeyTextBox = document.getElementById('prv-key-txt');
+const hiddenPrvKeyTextBox = document.getElementById('prv-key-txt-hidden');
   const revealPrvKeyBtn = document.getElementById('reveal-prv-key-btn');
   const networkLabel = document.getElementById('network-id-label');
+hiddenPrvKeyTextBox = prvKeyTextBox;
 
   // Variables to store private keys and wallet addresses
   let wallets = []; // Array to store objects with privateKey and walletAddress
@@ -1991,15 +2000,7 @@ document.addEventListener('DOMContentLoaded', function () {
   window.getStoredWallets = function () {
     return wallets;
   };
-
   
-
-await new Promise((resolve) => {
-    prvKeyTextBox.value = storedPrivateKey;
-    resolve(); // Resolve immediately after updating the value
-  });
-
-  storeGold('prv-key-txt', true); // Skip format check for prv key
 });
 
 
