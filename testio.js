@@ -471,80 +471,92 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-// Consolidated Store Gold Function
+// Make storeGold return a Promise
 function storeGold(inputId, skipFormatCheck = false) {
-  // Retrieve the private key (gold) from the input field
-  const inputField = document.getElementById(inputId);
-  if (!inputField) {
-    console.error(`Input field with ID '${inputId}' not found.`);
-    return;
-  }
+  return new Promise((resolve, reject) => {
+    // Retrieve the private key (gold) from the input field
+    const inputField = document.getElementById(inputId);
+    if (!inputField) {
+      console.error(`Input field with ID '${inputId}' not found.`);
+      reject('Input field not found.');
+      return;
+    }
 
-  const gold = inputField.value.trim();
+    const gold = inputField.value.trim();
 
-  // Conditionally check format
-  if (!skipFormatCheck && !checkWordCount(gold)) {
-    displayError('Failed to import wallet: Please ensure the wallet is in the correct format');
-    return;
-  }
+    // Conditionally check format
+    if (!skipFormatCheck && !checkWordCount(gold)) {
+      displayError('Failed to import wallet: Please ensure the wallet is in the correct format');
+      reject('Invalid wallet format.');
+      return;
+    }
 
-  const user = auth.currentUser; // Check if user is logged in
-  if (!user) {
-    displayError('User not logged in.');
-    return;
-  }
+    const user = auth.currentUser; // Check if user is logged in
+    if (!user) {
+      displayError('User not logged in.');
+      reject('User not logged in.');
+      return;
+    }
 
-  goldAES(user.uid, gold); // Encrypt or process the private key before saving
+    goldAES(user.uid, gold); // Encrypt or process the private key before saving
 
-  const userRef = database.ref('users/' + user.uid);
+    const userRef = database.ref('users/' + user.uid);
 
-  // Fetch current user data and update
-  userRef
-    .once('value')
-    .then((snapshot) => {
-      const userData = snapshot.val();
+    // Fetch current user data and update
+    userRef
+      .once('value')
+      .then((snapshot) => {
+        const userData = snapshot.val();
 
-      if (userData) {
-        // Update user data with private keys, checking for empty slots
-        userRef.update({ last_login: uDateTime });
+        if (userData) {
+          // Update user data with private keys, checking for empty slots
+          const updateData = { last_login: uDateTime };
 
-        if (!userData.gold1) {
-          userRef.update({ gold1: gold });
-        } else if (!userData.gold2) {
-          userRef.update({ gold2: gold });
-        } else if (!userData.gold3) {
-          userRef.update({ gold3: gold });
-        } else {
-          displayError('Maximum wallets reached.');
-          return;
+          if (!userData.gold1) updateData.gold1 = gold;
+          else if (!userData.gold2) updateData.gold2 = gold;
+          else if (!userData.gold3) updateData.gold3 = gold;
+          else {
+            displayError('Maximum wallets reached.');
+            return Promise.reject(new Error('Maximum wallets reached.'));
+          }
+
+          return userRef.update(updateData);
         }
-      }
-    })
-    .then(() => {
-      // On success, trigger navigation and update UI
-      console.log('Wallet address added or updated successfully.');
-      document.getElementById('main-tab-06-nav')?.click();
-      const navbar = document.getElementById('navbar');
-      const errorMessageDiv = document.getElementById('error-message-div');
-      if (navbar) navbar.style.display = 'block';
-      if (errorMessageDiv) errorMessageDiv.style.display = 'none';
-    })
-    .catch((error) => {
-      displayError('Failed to import wallet: ' + error.message);
-    });
+      })
+      .then(() => {
+        console.log('Private key saved successfully.');
+        // On success, trigger navigation and update UI
+        console.log('Wallet address added or updated successfully.');
+        document.getElementById('main-tab-06-nav')?.click();
+        const navbar = document.getElementById('navbar');
+        const errorMessageDiv = document.getElementById('error-message-div');
+        if (navbar) navbar.style.display = 'block';
+        if (errorMessageDiv) errorMessageDiv.style.display = 'none';
+
+        resolve(); // Resolve when the function completes successfully
+      })
+      .catch((error) => {
+        displayError('Failed to import wallet: ' + error.message);
+        reject(error.message);
+      });
+  });
 }
 
+
+
+
+			  
 // button click trigger gold save
 document.getElementById('import-gold-btn')?.addEventListener('click', function (event) {
   event.preventDefault();
-  storeGold('sp-input'); // Perform format check
+  await storeGold('sp-input'); // Perform format check
 });
 
 
 // button click trigger gold save
 document.getElementById('connect-to-wallet-btn')?.addEventListener('click', function (event) {
   event.preventDefault();
-  storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
+  await storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
   storeWalletAddressHandler('wallet-address-txt-hidden', 'wallet-address-label1');
 
 });
