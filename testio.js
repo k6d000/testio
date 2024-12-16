@@ -1853,8 +1853,11 @@ document.addEventListener('DOMContentLoaded', function () {
     alert('Error: Solana Web3.js is not loaded.');
     return;
   }
-
-  const bs58 = solanaWeb3.bs58; // Base58 utility for encoding Solana private keys
+  if (typeof bs58 === 'undefined') {
+    console.error('bs58 is not loaded. Please include the library.');
+    alert('Error: bs58 library is not loaded.');
+    return;
+  }
 
   const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
   const prvKeyTextBox = document.getElementById('prv-key-txt');
@@ -1906,7 +1909,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Generate Solana wallet
         const { Keypair } = solanaWeb3;
         const keypair = Keypair.generate();
-        privateKey = bs58.encode(keypair.secretKey); // Encode the raw secretKey to Base58
+        privateKey = bs58.encode(keypair.secretKey); // Encode private key to Base58
         walletAddress = keypair.publicKey.toString();
         console.log('Solana Wallet:', walletAddress, privateKey);
       } else {
