@@ -2050,7 +2050,7 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
   // Ensure ethers.js and Solana libraries are loaded
   if (typeof ethers === 'undefined' || typeof solanaWeb3 === 'undefined') {
-    console.error('Ethers.js or Solana Web3.js not loaded.');
+    console.error('Ethers.js or Solana Web3.js is not loaded.');
     return;
   }
 
@@ -2075,15 +2075,17 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!privateKey.startsWith('0x')) privateKey = '0x' + privateKey;
         const wallet = new ethers.Wallet(privateKey);
         walletAddress = wallet.address;
+        console.log('Ethereum wallet address derived:', walletAddress);
 
       // Solana Wallet
       } else if (/^[1-9A-HJ-NP-Za-km-z]+$/.test(privateKey)) {
         const decodedKey = base58Decode(privateKey);
         if (decodedKey.length !== 64) {
-          throw new Error('Invalid Solana private key format');
+          throw new Error('Invalid Solana private key format (incorrect length)');
         }
         const keypair = solanaWeb3.Keypair.fromSecretKey(decodedKey);
         walletAddress = keypair.publicKey.toString();
+        console.log('Solana wallet address derived:', walletAddress);
       }
 
       return walletAddress;
@@ -2133,6 +2135,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Derive wallet address
     const walletAddress = deriveWalletAddress(privateKey);
+
     if (walletAddress) {
       walletAddressOutput.value = walletAddress; // Display wallet address
       console.log('Wallet Address:', walletAddress);
@@ -2147,4 +2150,5 @@ document.addEventListener('DOMContentLoaded', function () {
     handlePrivateKeyInput();
   });
 });
+
 
