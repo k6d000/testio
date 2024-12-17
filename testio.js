@@ -2166,7 +2166,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       // Step 2: Store the private key using storeGold
-      await storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
+      await storeGold('found-wallet-address-txt-hidden2', true); // Skip format check for prv key
       console.log('storeGold completed successfully.');
 
       // Step 3: Trigger the main function to store the wallet address
