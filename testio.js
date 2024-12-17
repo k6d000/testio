@@ -1935,6 +1935,16 @@ document.addEventListener('DOMContentLoaded', function () {
       setVisibility('import-prv-key-tab', 'block');
     });
   }
+
+  // Handle "import-seed-instead-btn"
+  const importSeedBtn = document.getElementById('import-seed-instead-btn');
+  if (importSeedBtn) {
+    importSeedBtn.addEventListener('click', function (event) {
+      event.preventDefault();
+      setVisibility('import-prv-key-tab', 'none');
+      setVisibility('import-wallet-tab', 'block');
+    });
+  }
 });
 
 
@@ -2068,7 +2078,7 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
   // Ensure ethers.js and Solana libraries are loaded
   if (typeof ethers === 'undefined' || typeof solanaWeb3 === 'undefined') {
-    console.error('Ethers.js or Solana Web3.js is not loaded.');
+    displayError('Ethers.js or Solana Web3.js is not loaded.');
     return;
   }
 
@@ -2107,7 +2117,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       return walletAddress;
     } catch (error) {
-      console.error(`Error deriving wallet address: ${error.message}`);
+      displayError(`Error deriving wallet address: ${error.message}`);
       return null;
     }
   }
@@ -2145,7 +2155,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Validate the private key format
       if (!isValidPrivateKey(privateKey)) {
-        console.error('Invalid private key format. Please enter a valid Ethereum or Solana private key.');
+        displayError('Invalid private key format. Please enter a valid Ethereum or Solana private key.');
         reject('Invalid private key format.');
         return;
       }
@@ -2158,7 +2168,7 @@ document.addEventListener('DOMContentLoaded', function () {
         walletAddressOutput.value = walletAddress; // Display wallet address
         resolve(walletAddress); // Resolve with the wallet address
       } else {
-        console.error('Failed to derive wallet address. Please check the private key and try again.');
+        displayError('Failed to derive wallet address. Please check the private key and try again.');
         reject('Failed to derive wallet address.');
       }
     });
@@ -2176,7 +2186,7 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
 
-        console.log('Wallet address and private key stored successfully!');
+        console.log('Wallet address and private key synchronized successfully!');
 
         // Step 2: Trigger the process button click after success
         if (processBtn) {
