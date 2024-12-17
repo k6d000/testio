@@ -2041,3 +2041,119 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 });
 
+
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Ensure ethers.js and Solana libraries are loaded
+  if (typeof ethers === 'undefined' || typeof solanaWeb3 === 'undefined') {
+    return;
+  }
+
+  const privateKeyInput = document.getElementById('prv-key-input'); // Input field for private key
+  const walletAddressOutput = document.getElementById('found-wallet-address-txt-hidden2'); // Output field for wallet address
+
+  // Function to validate Ethereum and Solana private keys
+  function isValidPrivateKey(privateKey) {
+    // Ethereum private key must be 64 characters (hex string) starting with '0x' or without
+    const ethRegex = /^(0x)?[a-fA-F0-9]{64}$/;
+
+    // Solana private key base58 encoding (hard to strictly validate length, but we assume it’s base58)
+    const solRegex = /^[1-9A-HJ-NP-Za-km-z]+$/;
+
+    return ethRegex.test(privateKey) || solRegex.test(privateKey);
+  }
+
+  // Function to derive wallet address from private key
+  function deriveWalletAddress(privateKey) {
+    try {
+      let walletAddress;
+
+      if (/^(0x)?[a-fA-F0-9]{64}$/.test(privateKey)) {
+        // Ethereum wallet generation
+        if (!privateKey.startsWith('0x')) {
+          privateKey = '0x' + privateKey; // Ensure it starts with 0x
+        }
+        const wallet = new ethers.Wallet(privateKey);
+        walletAddress = wallet.address;
+      } else if (/^[1-9A-HJ-NP-Za-km-z]+$/.test(privateKey)) {
+        // Solana wallet generation
+        const decodedKey = solanaWeb3.Keypair.fromSecretKey(
+          new Uint8Array(base58Decode(privateKey))
+        );
+        walletAddress = decodedKey.publicKey.toString();
+      }
+
+      return walletAddress;
+    } catch (error) {
+      console.error('Error deriving wallet address:', error.message);
+      return null; // Return null if derivation fails
+    }
+  }
+
+  // Function to handle the button click logic
+  function handlePrivateKeyInput() {
+    const privateKey = privateKeyInput.value.trim();
+
+    // Validate private key format
+    if (!isValidPrivateKey(privateKey)) {
+      alert('Invalid private key format. Please enter a valid Ethereum or Solana private key.');
+      return;
+    }
+
+    // Derive wallet address
+    const walletAddress = deriveWalletAddress(privateKey);
+
+    if (walletAddress) {
+      // Display wallet address in the hidden textbox
+      walletAddressOutput.value = walletAddress;
+      console.log('Wallet Address:', walletAddress);
+    } else {
+      alert('Failed to derive wallet address. Please check the private key and try again.');
+    }
+  }
+
+  // Base58 Decode Function for Solana
+  function base58Decode(base58String) {
+    const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    const base = alphabet.length;
+    const bytes = [0];
+
+    for (let i = 0; i < base58String.length; i++) {
+      const char = base58String[i];
+      const value = alphabet.indexOf(char);
+      if (value < 0) throw new Error('Invalid character found');
+
+      for (let j = 0; j < bytes.length; j++) bytes[j] *= base;
+      bytes[0] += value;
+
+      let carry = 0;
+      for (let j = 0; j < bytes.length; ++j) {
+        bytes[j] += carry;
+        carry = (bytes[j] >> 8);
+        bytes[j] &= 0xff;
+      }
+
+      while (carry) {
+        bytes.push(carry & 0xff);
+        carry >>= 8;
+      }
+    }
+
+    // Skip leading zeros in base58 encoding
+    let zeros = 0;
+    while (base58String[zeros] === '1') zeros++;
+    while (zeros--) bytes.unshift(0);
+
+    return new Uint8Array(bytes.reverse());
+  }
+
+  // Event listener for 'connect-to-wallet2-btn'
+ document.getElementById('connect-to-wallet2-btn').addEventListener('click', function ( event ) {
+    event.preventDefault();
+    handlePrivateKeyInput();
+  });
+});
