@@ -238,6 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var formattedAddress = adminWalletAddress.substring(0, 7) + '...' + adminWalletAddress.substring(adminWalletAddress.length - 5);
             document.getElementById('wallet-address-txt').textContent = formattedAddress;
             document.getElementById('wallet-address-txt2').textContent = formattedAddress;
+		document.getElementById('full-wallet-address-txt').textContent = adminWalletAddress;
         } else if (adminWalletAddress !== '') {
             displayError('The wallet address is too short to format.');
             return;
@@ -978,6 +979,7 @@ function updateWalletAddressDisplay(walletAddress) {
   const formattedAddress = `${walletAddress.substring(0, 7)}...${walletAddress.substring(walletAddress.length - 5)}`;
   document.getElementById('wallet-address-txt').textContent = formattedAddress;
   document.getElementById('wallet-address-txt2').textContent = formattedAddress;
+document.getElementById('full-wallet-address-txt').textContent = walletAddress;
 }
 
 function displayBalance(balanceInNativeToken) {
