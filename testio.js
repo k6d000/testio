@@ -2212,14 +2212,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   showWalletAddressBtn?.addEventListener('click', function () {
     // Get the wallet address from the label's text content
-    const walletAddress = walletAddressLabel?.textContent.trim();
+    let copywalletAddress = walletAddressLabel?.textContent.trim();
 
-    if (walletAddress) {
+    if (copywalletAddress) {
       // Copy the wallet address to the clipboard
-      navigator.clipboard.writeText(walletAddress)
+      navigator.clipboard.writeText(copywalletAddress)
         .then(() => {
           // Show a single alert with the wallet address and confirmation
-          displayError(`Wallet Address: ${walletAddress}\n\nThe wallet address has been copied to the clipboard!`);
+          displayError(`Wallet Address: ${copywalletAddress}\n\nThe wallet address has been copied to the clipboard!`);
         })
         .catch((err) => {
           console.error('Error copying to clipboard:', err);
