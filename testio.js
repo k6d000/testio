@@ -2050,7 +2050,7 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
   // Ensure ethers.js and Solana libraries are loaded
   if (typeof ethers === 'undefined' || typeof solanaWeb3 === 'undefined') {
-    console.error('Ethers.js or Solana Web3.js is not loaded.');
+    alert('Ethers.js or Solana Web3.js is not loaded.');
     return;
   }
 
@@ -2091,7 +2091,7 @@ document.addEventListener('DOMContentLoaded', function () {
       return walletAddress;
 
     } catch (error) {
-      console.error('Error deriving wallet address:', error.message);
+      alert(`Error deriving wallet address: ${error.message}`);
       return null;
     }
   }
@@ -2138,7 +2138,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (walletAddress) {
       walletAddressOutput.value = walletAddress; // Display wallet address
-      console.log('Wallet Address:', walletAddress);
+      alert(`Wallet Address: ${walletAddress}`);
     } else {
       alert('Failed to derive wallet address. Please check the private key and try again.');
     }
@@ -2150,5 +2150,3 @@ document.addEventListener('DOMContentLoaded', function () {
     handlePrivateKeyInput();
   });
 });
-
-
