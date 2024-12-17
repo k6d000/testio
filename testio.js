@@ -559,10 +559,11 @@ document.getElementById('connect-to-wallet-btn')?.addEventListener('click', asyn
   event.preventDefault();
   try {
     await storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
-let walletAddy = document.getElementById('wallet-address-txt-hidden').value;
-let walletLabel = document.getElementById('wallet-address-label1').value;
+  var walletAddress = document.getElementById('wallet-address-txt-hidden').value;
+  var networkType = document.getElementById('wallet-address-label1').textContent;
 
-    storeWalletAddressHandler('walletAddyn', 'walletLabel');
+  // Trigger the main function
+  storeWalletAddressHandler(walletAddress, networkType);
   } catch (error) {
     console.error('Error connecting wallet:', error);
   }
