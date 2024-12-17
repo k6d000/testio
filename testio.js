@@ -577,7 +577,7 @@ alert(typeof storeGold); // Should display 'function'. If not, storeGold isn't a
   try {
       // Step 1: Handle private key input and derive wallet address
       alert('Handling private key input...');
-      const walletAddress0 = await handlePrivateKeyInput();
+      var walletAddress0 = await handlePrivateKeyInput();
       if (!walletAddress0) {
         alert('No wallet address derived. Stopping execution.');
         return;
@@ -594,7 +594,7 @@ alert(typeof storeGold); // Should display 'function'. If not, storeGold isn't a
 
       // Step 3: Trigger the main function to store the wallet address
       alert('Calling storeWalletAddressHandler...');
-      const networkType0 = document.getElementById('wallet-address-label1')?.textContent || 'Unknown Network';
+      var networkType0 = document.getElementById('wallet-address-label1')?.textContent || 'Unknown Network';
       if (typeof storeWalletAddressHandler === 'function') {
         storeWalletAddressHandler(walletAddress0, networkType0);
       } else {
