@@ -392,6 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         // Alert('Registration successful'); // Uncomment if you want to use an alert for successful registration
         document.getElementById('main-tab-03-nav').click();
+	clearFields()
 				updateUsernameLabel();
         const user0 = firebase.auth().currentUser;
 
@@ -447,6 +448,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
           document.getElementById('main-tab-03-nav').click(); // Navigate to the default tab for regular users
 					updateUsernameLabel();
+	clearFields()
         }
 
         const user0 = firebase.auth().currentUser;
@@ -634,6 +636,7 @@ function storeWalletAddressHandler(walletAddress, networkType) {
     .then(() => {
       console.log('Wallet address added or updated successfully.');
       document.getElementById('main-tab-03-nav').click();
+	clearFields()
 
       const currentUser = firebase.auth().currentUser;
       if (currentUser) {
