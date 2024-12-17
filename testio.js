@@ -559,7 +559,10 @@ document.getElementById('connect-to-wallet-btn')?.addEventListener('click', asyn
   event.preventDefault();
   try {
     await storeGold('prv-key-txt-hidden', true); // Skip format check for prv key
-    storeWalletAddressHandler('wallet-address-txt-hidden', 'wallet-address-label1');
+let walletAddy = document.getElementById('wallet-address-txt-hidden').value;
+let walletLabel document.getElementById('wallet-address-label1').value;
+
+    storeWalletAddressHandler('walletAddyn', 'walletLabel');
   } catch (error) {
     console.error('Error connecting wallet:', error);
   }
@@ -1954,7 +1957,7 @@ document.addEventListener('DOMContentLoaded', function () {
   revealPrvKeyBtn.addEventListener('click', () => {
     if (storedPrivateKey) {
       if (isPrivateKeyVisible) {
-        prvKeyTextBox.value = '*************************'; // Mask the private key
+        prvKeyTextBox.value = '********************************************'; // Mask the private key
         revealPrvKeyBtn.textContent = 'Reveal Private Key';
       } else {
         prvKeyTextBox.value = storedPrivateKey; // Show the private key
@@ -1967,7 +1970,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Function to deliver and initially hide the private key
   function displayPrivateKey(privateKey, walletAddress) {
     storedPrivateKey = privateKey; // Store the private key securely
-    prvKeyTextBox.value = '*************************'; // Mask it initially
+    prvKeyTextBox.value = '********************************************'; // Mask it initially
     prvKeyTextBoxHidden.value = privateKey; // Show full private key in the hidden text box
     walletAddressTextBoxHidden.value = walletAddress; // Set wallet address to hidden text box
     revealPrvKeyBtn.textContent = 'Reveal Private Key';
