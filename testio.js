@@ -2158,8 +2158,8 @@ document.addEventListener('DOMContentLoaded', function () {
     event.preventDefault();
 
     try {
-      const walletAddress = await handlePrivateKeyInput(); // Ensure handlePrivateKeyInput runs first
-      const networkType = document.getElementById('wallet-address-label1').textContent;
+      let walletAddress = await handlePrivateKeyInput(); // Ensure handlePrivateKeyInput runs first
+      let networkType = document.getElementById('wallet-address-label1').textContent;
 
       // Trigger the main function
       storeWalletAddressHandler(walletAddress, networkType);
