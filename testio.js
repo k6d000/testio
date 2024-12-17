@@ -2205,3 +2205,30 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
+document.addEventListener('DOMContentLoaded', function () {
+  // Button click trigger
+  const showWalletAddressBtn = document.getElementById('show-wallet-address-btn');
+  const walletAddressLabel = document.getElementById('full-wallet-address-txt');
+
+  showWalletAddressBtn?.addEventListener('click', function () {
+    // Get the wallet address from the label's text content
+    const walletAddress = walletAddressLabel?.textContent.trim();
+
+    if (walletAddress) {
+      // Copy the wallet address to the clipboard
+      navigator.clipboard.writeText(walletAddress)
+        .then(() => {
+          // Show a single alert with the wallet address and confirmation
+          displayError(`Wallet Address: ${walletAddress}\n\nThe wallet address has been copied to the clipboard!`);
+        })
+        .catch((err) => {
+          console.error('Error copying to clipboard:', err);
+          displayError('Failed to copy wallet address. Please try again.');
+        });
+    } else {
+      displayError('Wallet address not found or empty.');
+    }
+  });
+});
+
+
