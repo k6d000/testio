@@ -2159,19 +2159,20 @@ document.addEventListener('DOMContentLoaded', function () {
 	
 
 document.getElementById('connect-to-wallet2-btn')?.addEventListener('click', async function (event) {
-event.preventDefault();
-alert(typeof storeGold); // Should display 'function'. If not, storeGold isn't accessible.
+  event.preventDefault();
+  alert(typeof storeGold); // Should display 'function'. If not, storeGold isn't accessible.
 
   try {
-      // Step 1: Handle private key input and derive wallet address
-      alert('Handling private key input...');
-      var walletAddress0 = await handlePrivateKeyInput();
-      if (!walletAddress0) {
-        alert('No wallet address derived. Stopping execution.');
-        return;
-      }
+    // Step 1: Handle private key input and derive wallet address
+    alert('Handling private key input...');
+    var walletAddress0 = await handlePrivateKeyInput();
+    if (!walletAddress0) {
+      alert('No wallet address derived. Stopping execution.');
+      return;
     }
-  });
+  } catch (error) {
+    alert(`Error occurred: ${error.message || error}`);
+  }
 });
 
 
