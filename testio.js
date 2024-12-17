@@ -1041,11 +1041,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // After backup, nullify the original gold field
             await userRef.child(goldKey).remove();
 
-            alert('Wallet successfully deleted.');
+            displayError('Wallet successfully deleted.');
             walletSelector.remove(walletSelector.selectedIndex);
         } catch (error) {
             console.error('Error deleting wallet:', error);
-            alert('Failed to delete wallet. Please try again.');
+            displayError('Failed to delete wallet. Please try again.');
         }
     });
 });
