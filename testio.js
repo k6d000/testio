@@ -2237,7 +2237,7 @@ document.addEventListener('DOMContentLoaded', function () {
           // Revert the button text to the original after 3 seconds
           setTimeout(() => {
             showWalletAddressBtn.textContent = originalText;
-          }, 3000);
+          }, 1700);
         })
         .catch((err) => {
           console.error('Error copying to clipboard:', err);
