@@ -2227,7 +2227,7 @@ document.addEventListener('DOMContentLoaded', function () {
           showWalletAddressBtn.style.backgroundColor = '#51a96b';
 
           // Change the button text to 'Copied!'
-          showWalletAddressBtn.textContent = 'Copied!';
+          showWalletAddressBtn.textContent = 'Copied Successfully!';
 
           // Revert the button color after 0.5 seconds
           setTimeout(() => {
