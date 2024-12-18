@@ -2232,12 +2232,12 @@ document.addEventListener('DOMContentLoaded', function () {
           // Revert the button color after 0.5 seconds
           setTimeout(() => {
             showWalletAddressBtn.style.backgroundColor = '';
-          }, 500);
+          }, 1200);
 
           // Revert the button text to the original after 3 seconds
           setTimeout(() => {
             showWalletAddressBtn.textContent = originalText;
-          }, 1700);
+          }, 1300);
         })
         .catch((err) => {
           console.error('Error copying to clipboard:', err);
