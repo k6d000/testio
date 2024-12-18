@@ -92,27 +92,35 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 // Event listener for 'continue-with-wallet-btn'
-document.getElementById('continue-with-wallet-btn')?.addEventListener('click', async () => {
-    try {
-        document.getElementById('wallet-balance-txt').textContent = 'Loading...';
+document.getElementById('continue-with-wallet-btn').addEventListener('click', async () => {
+    // Indicate loading before fetching data
+    document.getElementById('wallet-balance-txt').textContent = 'Loading...';
 
+    try {
         const walletSelector = document.getElementById('wallet-selector');
         const selectedOption = walletSelector.options[walletSelector.selectedIndex];
         const networkType = selectedOption.getAttribute('data-network-type');
 
-        if (!networkType) throw new Error('Network type could not be determined.');
+        // Extract account number from the selected option's text
+        const accountNumber = selectedOption.text.match(/\bWallet (\d+)/i) 
+            ? selectedOption.text.match(/\bWallet (\d+)/i)[1] 
+            : 'Unknown';
+        document.getElementById('wallet-account-num-txt').textContent = `Account ${accountNumber}`;
 
-        // Update labels
+        if (!networkType) {
+            throw new Error('Network type could not be determined from the selected option.');
+        }
+
+        // Update labels based on the selected network
         updateLabelsForNetwork(networkType);
 
-        // Fetch wallet balances and update the UI
-        await findWalletBalancesAndUpdateUI();
+        // Fetch and display wallet balance, then update balance status
+        await findWalletBalancesAndUpdateUI(); // Ensure this completes first
+        await updateBalanceStatus();           // Now update status sequentially
 
-        // Wait for balance status update
-        await updateBalanceStatus();
     } catch (error) {
-        console.error('Error initializing wallet:', error.message);
-        displayError(error.message);
+        console.error('Error during balance update:', error);
+        displayError('Failed to initialize blockchain wallet. Please remove wallet and try again.');
     }
 });
 
@@ -120,15 +128,15 @@ async function updateBalanceStatus() {
     const walletBalanceTxtElement = document.getElementById('wallet-balance-txt');
     const minInputTxtElement = document.getElementById('min_input');
     const balanceStatusTxtElement = document.getElementById('balance-status-txt');
-    let retries = 0;
-
-    // Poll until balance is loaded (dynamic retries)
-    while (walletBalanceTxtElement.textContent === 'Loading...' && retries < 10) {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second
-        retries++;
-    }
 
     try {
+        // Retry logic to ensure balance loads
+        let retries = 0;
+        while (walletBalanceTxtElement.textContent === 'Loading...' && retries < 5) {
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second
+            retries++;
+        }
+
         if (!walletBalanceTxtElement || !minInputTxtElement || !balanceStatusTxtElement) {
             throw new Error('One or more required elements are missing.');
         }
@@ -149,14 +157,14 @@ async function updateBalanceStatus() {
         } else {
             balanceStatusTxtElement.textContent = 'Insufficient Balance';
             balanceStatusTxtElement.style.color = '#ffae00';
-            document.getElementById('main-tab-07-nav').click();
             document.getElementById('switch-wallet-btn').style.display = 'block';
         }
     } catch (error) {
-        console.error('Error:', error.message);
+        console.error('Error updating balance status:', error.message);
         displayError(error.message || 'Error updating balance status.');
     }
 }
+
 });
 
 
