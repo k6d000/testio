@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const minInputTxtElement = document.getElementById('min_input');
         const balanceStatusTxtElement = document.getElementById('balance-status-txt');
 
-        if (walletBalanceTxtElement.textContent === 'Loading...' && retryCount < 20) {
+        if (walletBalanceTxtElement.textContent === 'Loading...' && retryCount < 60) {
             // Wait for a short period and then retry
             setTimeout(() => updateBalanceStatus(retryCount + 1), 1000); // Retry after 1 second
             return;
