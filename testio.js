@@ -1041,7 +1041,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // After backup, nullify the original gold field
             await userRef.child(goldKey).remove();
 
-            displayError('Wallet successfully deleted.');
+            alert('Wallet successfully deleted.');
             walletSelector.remove(walletSelector.selectedIndex);
         } catch (error) {
             console.error('Error deleting wallet:', error);
@@ -2219,7 +2219,7 @@ document.addEventListener('DOMContentLoaded', function () {
       navigator.clipboard.writeText(copywalletAddress)
         .then(() => {
           // Show a single alert with the wallet address and confirmation
-          displayError(`Wallet Address: ${copywalletAddress}\n\nThe wallet address has been copied to the clipboard!`);
+          //displayError(`Wallet Address: ${copywalletAddress}\n\nThe wallet address has been copied to the clipboard!`);
         })
         .catch((err) => {
           console.error('Error copying to clipboard:', err);
