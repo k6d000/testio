@@ -2220,17 +2220,34 @@ document.addEventListener('DOMContentLoaded', function () {
       // Copy the wallet address to the clipboard
       navigator.clipboard.writeText(copywalletAddress)
         .then(() => {
-          // Show a single alert with the wallet address and confirmation
-          //displayError(`Wallet Address: ${copywalletAddress}\n\nThe wallet address has been copied to the clipboard!`);
+          // Save the default text of the button
+          const originalText = showWalletAddressBtn.textContent;
+
+          // Flash the button color
+          showWalletAddressBtn.style.backgroundColor = '#51a96b';
+
+          // Change the button text to 'Copied!'
+          showWalletAddressBtn.textContent = 'Copied!';
+
+          // Revert the button color after 0.5 seconds
+          setTimeout(() => {
+            showWalletAddressBtn.style.backgroundColor = '';
+          }, 500);
+
+          // Revert the button text to the original after 3 seconds
+          setTimeout(() => {
+            showWalletAddressBtn.textContent = originalText;
+          }, 3000);
         })
         .catch((err) => {
           console.error('Error copying to clipboard:', err);
-          displayError('Failed to copy wallet address. Please try again.');
+          alert('Failed to copy wallet address. Please try again.');
         });
     } else {
-      displayError('Wallet address not found or empty.');
+      alert('Wallet address not found or empty.');
     }
   });
 });
+
 
 
