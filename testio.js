@@ -157,7 +157,7 @@ async function updateBalanceStatus() {
         displayError(error.message || 'Error updating balance status.');
     }
 }
-
+});
 
 
 	
