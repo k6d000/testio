@@ -1965,370 +1965,286 @@ if (importSeedBtn) {
 
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Check for required libraries
-  if (typeof ethers === 'undefined' || typeof solanaWeb3 === 'undefined') {
-    console.error('Required libraries not loaded');
-    return;
+// Ensure ethers.js and Solana libraries are loaded
+if (typeof ethers === 'undefined' || typeof solanaWeb3 === 'undefined') {
+  return;
+}
+
+const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
+const prvKeyTextBox = document.getElementById('prv-key-txt');
+const prvKeyTextBoxHidden = document.getElementById('prv-key-txt-hidden'); // Hidden text box
+const walletAddressTextBoxHidden = document.getElementById('wallet-address-txt-hidden'); // Hidden wallet address box
+const revealPrvKeyBtn = document.getElementById('reveal-prv-key-btn');
+const networkLabel = document.getElementById('network-id-label');
+
+// Variables to store private keys and wallet addresses
+let wallets = []; // Array to store objects with privateKey and walletAddress
+let isPrivateKeyVisible = false;
+let storedPrivateKey = ''; // Holds the real private key for display purposes
+
+// Prevent typing in the private key textbox and set the cursor style
+prvKeyTextBox.readOnly = true;
+prvKeyTextBox.style.cursor = 'text';
+
+// Toggle Reveal/Hide Private Key
+revealPrvKeyBtn.addEventListener('click', () => {
+  if (storedPrivateKey) {
+    if (isPrivateKeyVisible) {
+      prvKeyTextBox.value = '********************************************'; // Mask the private key
+      revealPrvKeyBtn.textContent = 'Reveal Private Key';
+    } else {
+      prvKeyTextBox.value = storedPrivateKey; // Show the private key
+      revealPrvKeyBtn.textContent = 'Hide Private Key';
+    }
+    isPrivateKeyVisible = !isPrivateKeyVisible; // Toggle state
   }
-
-  // DOM Elements
-  const generateWalletBtn = document.getElementById('generate-new-wallet-btn');
-  const prvKeyTextBox = document.getElementById('prv-key-txt');
-  const prvKeyTextBoxHidden = document.getElementById('prv-key-txt-hidden');
-  const walletAddressTextBoxHidden = document.getElementById('wallet-address-txt-hidden');
-  const revealPrvKeyBtn = document.getElementById('reveal-prv-key-btn');
-  const networkLabel = document.getElementById('network-id-label');
-
-  // State management
-  let wallets = [];
-  let isPrivateKeyVisible = false;
-  let storedPrivateKey = '';
-
-  // Configure private key display
-  prvKeyTextBox.readOnly = true;
-  prvKeyTextBox.style.cursor = 'text';
-
-  // Utility function to validate Ethereum private key
-  function isValidEthereumPrivateKey(privateKey) {
-    try {
-      if (!privateKey.startsWith('0x')) {
-        privateKey = '0x' + privateKey;
-      }
-      const wallet = new ethers.Wallet(privateKey);
-      return {
-        isValid: true,
-        wallet: wallet
-      };
-    } catch (error) {
-      return {
-        isValid: false,
-        error: error.message
-      };
-    }
-  }
-
-  // Utility function to validate Solana private key
-  function isValidSolanaPrivateKey(secretKey) {
-    try {
-      if (!(secretKey instanceof Uint8Array) || secretKey.length !== 64) {
-        return {
-          isValid: false,
-          error: 'Invalid Solana private key format'
-        };
-      }
-      const keypair = solanaWeb3.Keypair.fromSecretKey(secretKey);
-      return {
-        isValid: true,
-        keypair: keypair
-      };
-    } catch (error) {
-      return {
-        isValid: false,
-        error: error.message
-      };
-    }
-  }
-
-  // Base58 encoding function for Solana
-  function base58Encode(bytes) {
-    const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-    let digits = [0];
-    
-    for (let i = 0; i < bytes.length; i++) {
-      let carry = bytes[i];
-      for (let j = 0; j < digits.length; j++) {
-        carry += digits[j] << 8;
-        digits[j] = carry % 58;
-        carry = (carry / 58) | 0;
-      }
-      while (carry > 0) {
-        digits.push(carry % 58);
-        carry = (carry / 58) | 0;
-      }
-    }
-
-    // Convert leading zeros
-    for (let i = 0; bytes[i] === 0 && i < bytes.length - 1; i++) {
-      digits.push(0);
-    }
-
-    return digits.reverse().map(digit => alphabet[digit]).join('');
-  }
-
-  // Function to generate and validate Ethereum wallet
-  function generateEthereumWallet() {
-    let attempts = 0;
-    const maxAttempts = 5;
-    
-    while (attempts < maxAttempts) {
-      try {
-        const wallet = ethers.Wallet.createRandom();
-        const validation = isValidEthereumPrivateKey(wallet.privateKey);
-        
-        if (validation.isValid) {
-          // Verify the address matches
-          const derivedAddress = wallet.address;
-          if (derivedAddress === validation.wallet.address) {
-            return {
-              privateKey: wallet.privateKey,
-              address: wallet.address
-            };
-          }
-        }
-      } catch (error) {
-        console.error('Attempt failed:', error);
-      }
-      attempts++;
-    }
-    throw new Error('Failed to generate valid Ethereum wallet');
-  }
-
-  // Function to generate and validate Solana wallet
-  function generateSolanaWallet() {
-    let attempts = 0;
-    const maxAttempts = 5;
-    
-    while (attempts < maxAttempts) {
-      try {
-        const keypair = solanaWeb3.Keypair.generate();
-        const validation = isValidSolanaPrivateKey(keypair.secretKey);
-        
-        if (validation.isValid) {
-          // Verify the public key matches
-          const derivedPublicKey = validation.keypair.publicKey.toString();
-          if (derivedPublicKey === keypair.publicKey.toString()) {
-            return {
-              privateKey: base58Encode(keypair.secretKey),
-              address: keypair.publicKey.toString()
-            };
-          }
-        }
-      } catch (error) {
-        console.error('Attempt failed:', error);
-      }
-      attempts++;
-    }
-    throw new Error('Failed to generate valid Solana wallet');
-  }
-
-  // Function to display private key
-  function displayPrivateKey(privateKey, walletAddress) {
-    storedPrivateKey = privateKey;
-    prvKeyTextBox.value = '********************************************';
-    prvKeyTextBoxHidden.value = privateKey;
-    walletAddressTextBoxHidden.value = walletAddress;
-    revealPrvKeyBtn.textContent = 'Reveal Private Key';
-    isPrivateKeyVisible = false;
-  }
-
-  // Toggle private key visibility
-  revealPrvKeyBtn.addEventListener('click', () => {
-    if (storedPrivateKey) {
-      isPrivateKeyVisible = !isPrivateKeyVisible;
-      prvKeyTextBox.value = isPrivateKeyVisible ? storedPrivateKey : '********************************************';
-      revealPrvKeyBtn.textContent = isPrivateKeyVisible ? 'Hide Private Key' : 'Reveal Private Key';
-    }
-  });
-
-  // Generate wallet button click handler
-  generateWalletBtn.addEventListener('click', async function (event) {
-    event.preventDefault();
-    const network = networkLabel.textContent.trim();
-
-    try {
-      let walletData;
-
-      if (['Ethereum', 'Optimism', 'BNB', 'Arbitrum', 'Polygon', 'Base'].includes(network)) {
-        walletData = generateEthereumWallet();
-      } else if (network === 'Solana') {
-        walletData = generateSolanaWallet();
-      } else {
-        throw new Error('Unsupported network');
-      }
-
-      // Display and store wallet data
-      displayPrivateKey(walletData.privateKey, walletData.address);
-      wallets.push({
-        network: network,
-        privateKey: walletData.privateKey,
-        walletAddress: walletData.address
-      });
-
-    } catch (error) {
-      console.error('Failed to generate wallet:', error);
-      // You might want to show an error message to the user here
-    }
-  });
-
-  // Make wallets accessible to other code blocks
-  window.getStoredWallets = function () {
-    return wallets;
-  };
 });
 
-// Second event listener for wallet connection
+// Function to deliver and initially hide the private key
+function displayPrivateKey(privateKey, walletAddress) {
+  storedPrivateKey = privateKey; // Store the private key securely
+  prvKeyTextBox.value = '********************************************'; // Mask it initially
+  prvKeyTextBoxHidden.value = privateKey; // Show full private key in the hidden text box
+  walletAddressTextBoxHidden.value = walletAddress; // Set wallet address to hidden text box
+  revealPrvKeyBtn.textContent = 'Reveal Private Key';
+  isPrivateKeyVisible = false; // Reset state to hidden
+}
+
+// Add event listener for generating wallets
+generateWalletBtn.addEventListener('click', async function (event) {
+  event.preventDefault();
+  const network = networkLabel.textContent.trim();
+
+  try {
+    let privateKey, walletAddress;
+
+    // Generate wallet based on network type
+    if (['Ethereum', 'Optimism', 'BNB', 'Arbitrum', 'Polygon', 'Base'].includes(network)) {
+      const wallet = ethers.Wallet.createRandom();
+      privateKey = wallet.privateKey;
+      walletAddress = wallet.address;
+    } else if (network === 'Solana') {
+      const { Keypair } = solanaWeb3;
+      const keypair = Keypair.generate();
+      privateKey = base58Encode(keypair.secretKey); // Encode private key
+      walletAddress = keypair.publicKey.toString();
+    } else {
+      return; // Unsupported network
+    }
+
+    // Display private key and wallet address
+    displayPrivateKey(privateKey, walletAddress);
+
+    // Save wallet data to the local variable
+    wallets.push({
+      network: network,
+      privateKey: privateKey,
+      walletAddress: walletAddress
+    });
+  } catch (error) {
+    return; // Handle errors silently
+  }
+});
+
+// Base58 Encode Function
+function base58Encode(bytes) {
+  const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  let digits = [0];
+  for (let i = 0; i < bytes.length; i++) {
+    for (let j = 0; j < digits.length; j++) digits[j] <<= 8;
+    digits[0] += bytes[i];
+    let carry = 0;
+    for (let j = 0; j < digits.length; j++) {
+      digits[j] += carry;
+      carry = (digits[j] / 58) | 0;
+      digits[j] %= 58;
+    }
+    while (carry) {
+      digits.push(carry % 58);
+      carry = (carry / 58) | 0;
+    }
+  }
+  return digits.reverse().map((digit) => alphabet[digit]).join('');
+}
+
+// Function to get stored wallets (accessible to other code blocks)
+window.getStoredWallets = function () {
+  return wallets;
+};
+});
+
+
+
+
+
+
+
+
+
+
 document.addEventListener('DOMContentLoaded', function () {
-  if (typeof ethers === 'undefined' || typeof solanaWeb3 === 'undefined') {
-    console.error('Required libraries not loaded');
-    return;
+// Ensure ethers.js and Solana libraries are loaded
+if (typeof ethers === 'undefined' || typeof solanaWeb3 === 'undefined') {
+  displayError('Ethers.js or Solana Web3.js is not loaded.');
+  return;
+}
+
+const connectToWalletBtn = document.getElementById('connect-to-wallet2-btn');
+const processBtn = document.getElementById('connect-to-wallet2-process-btn'); // Button to click after success
+const privateKeyInput = document.getElementById('prv-key-input'); // Input field for private key
+const walletAddressOutput = document.getElementById('found-wallet-address-txt-hidden2'); // Output field for wallet address
+
+// Function to validate Ethereum and Solana private keys
+function isValidPrivateKey(privateKey) {
+  const ethRegex = /^(0x)?[a-fA-F0-9]{64}$/; // Ethereum private key regex
+  const solRegex = /^[1-9A-HJ-NP-Za-km-z]+$/; // Solana base58 key regex
+  return ethRegex.test(privateKey) || solRegex.test(privateKey);
+}
+
+// Function to derive wallet address from private key
+function deriveWalletAddress(privateKey) {
+  try {
+    let walletAddress;
+
+    // Ethereum Wallet
+    if (/^(0x)?[a-fA-F0-9]{64}$/.test(privateKey)) {
+      if (!privateKey.startsWith('0x')) privateKey = '0x' + privateKey;
+      const wallet = new ethers.Wallet(privateKey);
+      walletAddress = wallet.address;
+
+    // Solana Wallet
+    } else if (/^[1-9A-HJ-NP-Za-km-z]+$/.test(privateKey)) {
+      const decodedKey = base58Decode(privateKey);
+      if (decodedKey.length !== 64) {
+        throw new Error('Invalid Solana private key format (incorrect length)');
+      }
+      const keypair = solanaWeb3.Keypair.fromSecretKey(decodedKey);
+      walletAddress = keypair.publicKey.toString();
+    }
+
+    return walletAddress;
+  } catch (error) {
+    displayError(`Error deriving wallet address: ${error.message}`);
+    return null;
   }
+}
 
-  const connectToWalletBtn = document.getElementById('connect-to-wallet2-btn');
-  const processBtn = document.getElementById('connect-to-wallet2-process-btn');
-  const privateKeyInput = document.getElementById('prv-key-input');
-  const walletAddressOutput = document.getElementById('found-wallet-address-txt-hidden2');
+// Base58 Decode Function for Solana Private Keys
+function base58Decode(base58String) {
+  const bs58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  let result = [0];
+  for (const char of base58String) {
+    const value = bs58.indexOf(char);
+    if (value < 0) throw new Error('Invalid base58 character');
 
-  function isValidPrivateKey(privateKey) {
-    // Ethereum private key validation
-    const ethRegex = /^(0x)?[a-fA-F0-9]{64}$/;
-    if (ethRegex.test(privateKey)) {
-      try {
-        const wallet = new ethers.Wallet(privateKey.startsWith('0x') ? privateKey : '0x' + privateKey);
-        return true;
-      } catch {
-        return false;
-      }
+    for (let i = 0; i < result.length; i++) result[i] *= 58;
+    result[0] += value;
+
+    let carry = 0;
+    for (let i = 0; i < result.length; i++) {
+      result[i] += carry;
+      carry = (result[i] / 256) | 0;
+      result[i] %= 256;
     }
-
-    // Solana private key validation
-    const solRegex = /^[1-9A-HJ-NP-Za-km-z]+$/;
-    if (solRegex.test(privateKey)) {
-      try {
-        const decodedKey = base58Decode(privateKey);
-        return decodedKey.length === 64;
-      } catch {
-        return false;
-      }
-    }
-
-    return false;
-  }
-
-  function base58Decode(base58String) {
-    const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-    const base = alphabet.length;
-    const bytes = [0];
-
-    for (let i = 0; i < base58String.length; i++) {
-      const char = base58String[i];
-      const value = alphabet.indexOf(char);
-      if (value === -1) {
-        throw new Error('Invalid base58 character');
-      }
-
-      for (let j = 0; j < bytes.length; j++) {
-        bytes[j] *= base;
-      }
-      bytes[0] += value;
-
-      let carry = 0;
-      for (let j = 0; j < bytes.length; j++) {
-        bytes[j] += carry;
-        carry = bytes[j] >> 8;
-        bytes[j] &= 0xff;
-      }
-
-      while (carry) {
-        bytes.push(carry & 0xff);
-        carry >>= 8;
-      }
-    }
-
-    // Handle leading zeros
-    for (let i = 0; i < base58String.length && base58String[i] === '1'; i++) {
-      bytes.push(0);
-    }
-
-    return new Uint8Array(bytes.reverse());
-  }
-
-  function deriveWalletAddress(privateKey) {
-    try {
-      // Ethereum wallet address derivation
-      if (/^(0x)?[a-fA-F0-9]{64}$/.test(privateKey)) {
-        const formattedKey = privateKey.startsWith('0x') ? privateKey : '0x' + privateKey;
-        const wallet = new ethers.Wallet(formattedKey);
-        return wallet.address;
-      }
-
-      // Solana wallet address derivation
-      if (/^[1-9A-HJ-NP-Za-km-z]+$/.test(privateKey)) {
-        const decodedKey = base58Decode(privateKey);
-        if (decodedKey.length !== 64) {
-          throw new Error('Invalid Solana private key length');
-        }
-        const keypair = solanaWeb3.Keypair.fromSecretKey(decodedKey);
-        return keypair.publicKey.toString();
-      }
-
-      throw new Error('Unsupported private key format');
-    } catch (error) {
-      console.error('Error deriving wallet address:', error);
-      return null;
+    while (carry) {
+      result.push(carry % 256);
+      carry = (carry / 256) | 0;
     }
   }
+  const zeros = base58String.match(/^1*/)?.[0].length || 0;
+  return new Uint8Array([...Array(zeros).fill(0), ...result.reverse()]);
+}
 
-  async function handlePrivateKeyInput() {
+// Function to handle private key input and return a Promise
+function handlePrivateKeyInput() {
+  return new Promise((resolve, reject) => {
     const privateKey = privateKeyInput.value.trim();
 
+    // Validate the private key format
     if (!isValidPrivateKey(privateKey)) {
-      throw new Error('Invalid private key format');
+      displayError('Invalid private key format. Please enter a valid Ethereum or Solana private key.');
+      reject('Invalid private key format.');
+      return;
     }
 
+    // Derive wallet address
     const walletAddress = deriveWalletAddress(privateKey);
-    if (!walletAddress) {
-      throw new Error('Failed to derive wallet address');
-    }
-
-    walletAddressOutput.value = walletAddress;
-    return walletAddress;
-  }
-
-  connectToWalletBtn?.addEventListener('click', async function (event) {
-    event.preventDefault();
-
-    try {
-      const walletAddress = await handlePrivateKeyInput();
-      console.log('Wallet address derived successfully:', walletAddress);
-      if (processBtn) {
-        processBtn.click();
-      }
-    } catch (error) {
-      console.error('Error:', error.message);
-      // You might want to show an error message to the user here
-    }
-  });
-});
-
-// Third event listener for showing wallet address
-document.addEventListener('DOMContentLoaded', function () {
-  const showWalletAddressBtn = document.getElementById('show-wallet-address-btn');
-  const walletAddressLabel = document.getElementById('full-wallet-address-txt');
-
-  showWalletAddressBtn?.addEventListener('click', function () {
-    const walletAddress = walletAddressLabel?.textContent.trim();
 
     if (walletAddress) {
-      navigator.clipboard.writeText(walletAddress)
-        .then(() => {
-          const originalText = showWalletAddressBtn.textContent;
-          showWalletAddressBtn.style.backgroundColor = '#51a96b';
-          showWalletAddressBtn.textContent = 'Copied Successfully!';
-
-          setTimeout(() => {
-            showWalletAddressBtn.style.backgroundColor = '';
-          }, 1200);
-
-          setTimeout(() => {
-            showWalletAddressBtn.textContent = originalText;
-          }, 1300);
-        })
-        .catch((err) => {
-          console.error('Error copying to clipboard:', err);
-          alert('Failed to copy wallet address. Please try again.');
-        });
+      console.log(`Derived Wallet Address: ${walletAddress}`);
+      walletAddressOutput.value = walletAddress; // Display wallet address
+      resolve(walletAddress); // Resolve with the wallet address
     } else {
-      alert('Wallet address not found or empty.');
+      displayError('Failed to derive wallet address. Please check the private key and try again.');
+      reject('Failed to derive wallet address.');
     }
   });
+}
+
+// Button click trigger
+connectToWalletBtn?.addEventListener('click', function (event) {
+  event.preventDefault();
+
+  // Step 1: Handle private key input and derive wallet address
+  handlePrivateKeyInput()
+    .then((walletAddress0) => {
+      if (!walletAddress0) {
+        console.error('No wallet address derived. Stopping execution.');
+        return;
+      }
+
+      console.log('Wallet address and private key synchronized successfully!');
+
+      // Step 2: Trigger the process button click after success
+      if (processBtn) {
+        processBtn.click(); // Programmatically click the process button
+      }
+    })
+    .catch((error) => {
+      console.error(`Error occurred: ${error}`);
+    });
+});
+});
+
+
+document.addEventListener('DOMContentLoaded', function () {
+// Button click trigger
+const showWalletAddressBtn = document.getElementById('show-wallet-address-btn');
+const walletAddressLabel = document.getElementById('full-wallet-address-txt');
+
+showWalletAddressBtn?.addEventListener('click', function () {
+  // Get the wallet address from the label's text content
+  let copywalletAddress = walletAddressLabel?.textContent.trim();
+
+  if (copywalletAddress) {
+    // Copy the wallet address to the clipboard
+    navigator.clipboard.writeText(copywalletAddress)
+      .then(() => {
+        // Save the default text of the button
+        const originalText = showWalletAddressBtn.textContent;
+
+        // Flash the button color
+        showWalletAddressBtn.style.backgroundColor = '#51a96b';
+
+        // Change the button text to 'Copied!'
+        showWalletAddressBtn.textContent = 'Copied Successfully!';
+
+        // Revert the button color after 0.5 seconds
+        setTimeout(() => {
+          showWalletAddressBtn.style.backgroundColor = '';
+        }, 1200);
+
+        // Revert the button text to the original after 3 seconds
+        setTimeout(() => {
+          showWalletAddressBtn.textContent = originalText;
+        }, 1300);
+      })
+      .catch((err) => {
+        console.error('Error copying to clipboard:', err);
+        alert('Failed to copy wallet address. Please try again.');
+      });
+  } else {
+    alert('Wallet address not found or empty.');
+  }
+});
 });
